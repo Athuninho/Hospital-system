@@ -1,0 +1,6 @@
+queries:
+  - security-and-quality/javascript
+  - security-and-quality/nodejs
+
+exclude:
+  - "**/node_modules/**"

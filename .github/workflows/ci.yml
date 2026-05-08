@@ -39,6 +39,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript
+          config-file: .github/codeql/codeql-config.yml
+
+      - name: Autobuild (CodeQL)
+        uses: github/codeql-action/autobuild@v2
+
       - name: Run linter
         run: pnpm lint
 
@@ -67,3 +76,7 @@ jobs:
         with:
           name: api-junit-report
           path: apps/api-gateway/test-results/junit.xml
+
+      - name: Finalize CodeQL
+        if: always()
+        uses: github/codeql-action/analyze@v2
