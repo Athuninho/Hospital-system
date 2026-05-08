@@ -1,0 +1,13 @@
+{
+  "name": "@hospital/worker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/main.ts"
+  },
+  "dependencies": {
+    "bullmq": "^2.0.0",
+    "ioredis": "^5.0.0",
+    "@prisma/client": "*"
+  }
+}
