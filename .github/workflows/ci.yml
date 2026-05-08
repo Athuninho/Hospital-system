@@ -26,6 +26,16 @@ jobs:
       - name: Install pnpm
         run: corepack enable && corepack prepare pnpm@latest --activate
 
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pnpm-store
+            ~/.cache/pnpm
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ matrix.node-version }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-${{ matrix.node-version }}-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -33,11 +43,11 @@ jobs:
         run: npx prisma generate || true
 
       - name: Run API tests
-        run: pnpm --filter @hospital/api-gateway test
+        run: pnpm --filter @hospital/api-gateway test -- --outputFile=apps/api-gateway/test-results/junit.xml
 
-      - name: Upload test results
+      - name: Upload JUnit test report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: api-test-logs
-          path: apps/api-gateway/test-results || apps/api-gateway/jest-results.xml || ''
+          name: api-junit-report
+          path: apps/api-gateway/test-results/junit.xml
