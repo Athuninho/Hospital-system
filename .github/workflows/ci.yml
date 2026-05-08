@@ -81,7 +81,7 @@ jobs:
         if: always()
         uses: github/codeql-action/analyze@v2
 
-      - name: Fail on high-severity CodeQL alerts
+      - name: Comment PR with CodeQL alert summary and fail on high-severity
         if: always()
         uses: actions/github-script@v6
         with:
@@ -97,6 +97,40 @@ jobs:
               const sev = String(rsev || '').toLowerCase();
               return sev === 'high' || sev === 'critical' || sev === 'error';
             });
+
+            // If this is a PR, post or update a comment with a summary
+            if (github.context.eventName === 'pull_request') {
+              const prNumber = github.context.payload.pull_request.number;
+              const marker = '<!-- codeql-alert-summary -->';
+              let body = `${marker}\n## CodeQL Scan Summary\n`;
+              body += `Total open alerts: **${alerts.length}**\n\n`;
+              if (alerts.length > 0) {
+                const top = alerts.slice(0, 10);
+                body += '| Severity | Rule | Message | Location |\n';
+                body += '|---|---|---|---|\n';
+                for (const a of top) {
+                  const sev = (a.rule && (a.rule.severity || a.rule.level)) || (a.most_recent_instance && a.most_recent_instance.severity) || a.severity || 'unknown';
+                  const ruleName = a.rule ? (a.rule.id || a.rule.name || 'rule') : (a.rule_id || 'rule');
+                  const message = a.alert_instance && a.alert_instance.message ? a.alert_instance.message.text : (a.rule && a.rule.description ? a.rule.description : '');
+                  const alertUrl = a.html_url || `https://github.com/${owner}/${repo}/security/code-scanning/alerts/${a.number}`;
+                  const location = (a.most_recent_instance && a.most_recent_instance.location && (a.most_recent_instance.location.path || a.most_recent_instance.location.start_line)) ? (a.most_recent_instance.location.path || `line ${a.most_recent_instance.location.start_line}`) : '';
+                  body += `| ${sev} | [${ruleName}](${alertUrl}) | ${message.replace(/\|/g, '\\|').slice(0,120)} | ${location} |\n`;
+                }
+                if (alerts.length > 10) body += `\nAnd ${alerts.length - 10} more...`;
+              }
+
+              // find existing bot comment
+              const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number: prNumber });
+              const existing = comments.find(c => c.body && c.body.startsWith(marker));
+              if (existing) {
+                await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+                core.info('Updated existing CodeQL alert summary comment.');
+              } else {
+                await github.rest.issues.createComment({ owner, repo, issue_number: prNumber, body });
+                core.info('Created CodeQL alert summary comment.');
+              }
+            }
+
             if (highSev.length > 0) {
               core.setFailed(`CodeQL found ${highSev.length} high/critical severity alert(s). Review: https://github.com/${owner}/${repo}/security/code-scanning`);
             } else {
