@@ -3,15 +3,25 @@ import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../../src/app.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { PrismaService } from '@hospital/prisma';
 
 describe('Throttling (integration)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
+    // provide a lightweight mock for PrismaService so tests don't require a DB
+    const mockPrisma = {
+      $connect: async () => {},
+      $disconnect: async () => {},
+    } as any;
+
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule, ThrottlerModule.forRoot({ ttl: 60, limit: 5 })],
-    }).compile();
+    })
+      .overrideProvider(PrismaService)
+      .useValue(mockPrisma)
+      .compile();
 
     app = moduleRef.createNestApplication();
     await app.init();
