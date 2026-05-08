@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@hospital/prisma';
 import * as bcrypt from 'bcryptjs';
 import { mailer } from '../mailer/mailer.service';
+import { PasswordService } from './password.service';
 
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCK_MINUTES = 15;
@@ -57,6 +58,8 @@ export class AuthService {
   async register(dto: { email: string; password: string; firstName: string; lastName: string }) {
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) throw new BadRequestException('Email already registered');
+    // enforce password strength
+    PasswordService.validateStrength(dto.password, [dto.email, dto.firstName, dto.lastName]);
     const passwordHash = await bcrypt.hash(dto.password, 12);
     // default role: PATIENT
     const role = await this.prisma.role.findUnique({ where: { name: 'PATIENT' } });
@@ -85,6 +88,8 @@ export class AuthService {
   async resetPassword(token: string, newPassword: string) {
     const user = await this.prisma.user.findFirst({ where: { passwordResetToken: token } });
     if (!user || !user.passwordResetExpires || user.passwordResetExpires < new Date()) throw new BadRequestException('Invalid or expired token');
+    // enforce password strength
+    PasswordService.validateStrength(newPassword, [user.email]);
     const hash = await bcrypt.hash(newPassword, 12);
     await this.prisma.user.update({ where: { id: user.id }, data: { passwordHash: hash, passwordResetToken: null, passwordResetExpires: null, failedLoginAttempts: 0, lockUntil: null } });
     return { ok: true };
