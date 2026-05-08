@@ -75,12 +75,42 @@ jobs:
             fs.writeFileSync('codeql_nightly_summary.txt', txt);
             return { alertCount: alerts.length };
 
-      - name: Post summary to Slack
+      - name: Post summary to Slack (Block Kit)
         if: ${{ secrets.SLACK_WEBHOOK_URL }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          SUMMARY=$(cat codeql_nightly_summary.txt)
-          PAYLOAD=$(jq -n --arg text "$SUMMARY" '{text: $text}')
-          curl -s -X POST -H 'Content-type: application/json' --data "$PAYLOAD" ${{ secrets.SLACK_WEBHOOK_URL }}
+          node <<'NODE'
+          const fs = require('fs');
+          const https = require('https');
+          const url = process.env.SLACK_WEBHOOK_URL;
+          const summary = JSON.parse(fs.readFileSync('codeql_summary.json', 'utf8'));
+          const blocks = [];
+          blocks.push({ type: 'header', text: { type: 'plain_text', text: `CodeQL Nightly — ${summary.repo}`, emoji: true } });
+          blocks.push({ type: 'section', text: { type: 'mrkdwn', text: `*Total open alerts:* *${summary.totalOpen}*` } });
+          const countsText = Object.keys(summary.counts).map(k => `*${k}*: ${summary.counts[k]}`).join('\n');
+          blocks.push({ type: 'section', text: { type: 'mrkdwn', text: `*Severity counts:*\n${countsText}` } });
+          blocks.push({ type: 'divider' });
+          if (summary.top && summary.top.length > 0) {
+            const alertBlocks = [];
+            summary.top.forEach(t => {
+              const title = `*${String(t.severity).toUpperCase()}* <${t.url}|${t.rule}> ${t.location}`;
+              const msg = t.message ? `\n>${t.message.replace(/\n/g, ' ').slice(0,200)}` : '';
+              alertBlocks.push({ type: 'section', text: { type: 'mrkdwn', text: `${title}${msg}` } });
+            });
+            blocks.push(...alertBlocks);
+          } else {
+            blocks.push({ type: 'section', text: { type: 'mrkdwn', text: '_No open alerts_' } });
+          }
+          const payload = JSON.stringify({ blocks });
+          const req = https.request(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) } }, res => {
+            console.log('Slack response status:', res.statusCode);
+            res.on('data', d => process.stdout.write(d));
+          });
+          req.on('error', e => { console.error('Error sending Slack message', e); process.exit(1); });
+          req.write(payload);
+          req.end();
+          NODE
 
       - name: Post summary to MS Teams
         if: ${{ secrets.MSTEAMS_WEBHOOK_URL }}
