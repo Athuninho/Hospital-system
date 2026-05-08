@@ -80,3 +80,25 @@ jobs:
       - name: Finalize CodeQL
         if: always()
         uses: github/codeql-action/analyze@v2
+
+      - name: Fail on high-severity CodeQL alerts
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            core.info(`Checking code scanning alerts for ${owner}/${repo}`);
+            const resp = await github.rest.codeScanning.listAlertsForRepo({ owner, repo, state: 'open', per_page: 100 });
+            const alerts = resp.data || [];
+            const highSev = alerts.filter(a => {
+              const rsev = (a.rule && (a.rule.severity || a.rule.level)) || (a.most_recent_instance && a.most_recent_instance.severity) || a.severity || '';
+              const sev = String(rsev || '').toLowerCase();
+              return sev === 'high' || sev === 'critical' || sev === 'error';
+            });
+            if (highSev.length > 0) {
+              core.setFailed(`CodeQL found ${highSev.length} high/critical severity alert(s). Review: https://github.com/${owner}/${repo}/security/code-scanning`);
+            } else {
+              core.info('No high-severity code scanning alerts found.');
+            }
