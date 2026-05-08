@@ -1,0 +1,19 @@
+%% Mermaid ER diagram for core entities
+erDiagram
+    HOSPITAL ||--o{ STAFF : employs
+    HOSPITAL ||--o{ PATIENT : serves
+    HOSPITAL ||--o{ WARD : has
+    STAFF ||--o{ SCHEDULE : manages
+    PATIENT ||--o{ CONTACT : has
+    PATIENT ||--o{ MEDICALHISTORY : has
+    PATIENT ||--o{ ALLERGY : has
+    PATIENT ||--o{ VISIT : has
+    VISIT ||--o{ ENCOUNTER : records
+    ENCOUNTER ||--o{ PRESCRIPTION : issues
+    PRESCRIPTION ||--o{ PRESCRIPTIONITEM : contains
+    ENCOUNTER ||--o{ LABREQUEST : generates
+    LABREQUEST ||--o{ LABRESULT : has
+    PATIENT ||--o{ APPOINTMENT : schedules
+    WARD ||--o{ BED : contains
+    BED ||--o{ ADMISSION : allocated
+    INVOICE ||--o{ PAYMENT : has

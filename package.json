@@ -1,0 +1,16 @@
+{
+  "name": "hospital-system",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ],
+  "scripts": {
+    "dev:api": "pnpm --filter @hospital/api-gateway dev",
+    "dev:ws": "pnpm --filter @hospital/ws-server dev",
+    "dev:worker": "pnpm --filter @hospital/worker dev",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write ."
+  }
+}
