@@ -72,6 +72,11 @@ model User {
   isActive     Boolean  @default(true)
   roleId       String
   hospitalId   String?  // optional association for hospital staff
+  failedLoginAttempts Int    @default(0)
+  lockUntil           DateTime?
+  passwordResetToken  String? @unique
+  passwordResetExpires DateTime?
+  mfaEnabled          Boolean @default(false)
   createdAt    DateTime @default(now())
 
   role         Role     @relation(fields: [roleId], references: [id])
