@@ -33,7 +33,7 @@ jobs:
       - name: Run CodeQL analysis
         uses: github/codeql-action/analyze@v2
 
-      - name: Create summary file from CodeQL alerts
+      - name: Create structured summary from CodeQL alerts
         uses: actions/github-script@v6
         id: summary
         with:
@@ -50,22 +50,29 @@ jobs:
               acc[s] = (acc[s] || 0) + 1;
               return acc;
             }, {});
-            let summary = `CodeQL Nightly Summary for ${owner}/${repo}\n`;
-            summary += `Total open alerts: ${alerts.length}\n`;
-            summary += `Severity counts:\n`;
-            for (const k of Object.keys(counts)) summary += ` - ${k}: ${counts[k]}\n`;
-            if (alerts.length > 0) {
-              summary += '\nTop alerts (first 10):\n';
-              const top = alerts.slice(0,10);
-              for (const a of top) {
-                const sev = (a.rule && (a.rule.severity || a.rule.level)) || (a.most_recent_instance && a.most_recent_instance.severity) || a.severity || 'unknown';
-                const rule = a.rule ? (a.rule.id || a.rule.name || a.rule) : (a.rule_id || 'rule');
-                const url = a.html_url || `https://github.com/${owner}/${repo}/security/code-scanning/alerts/${a.number}`;
-                const loc = a.most_recent_instance && a.most_recent_instance.location ? (a.most_recent_instance.location.path || `line ${a.most_recent_instance.location.start_line}`) : '';
-                summary += ` - [${String(sev)}] ${rule}: ${url} ${loc}\n`;
-              }
+            const top = alerts.slice(0,10).map(a => ({
+              severity: (a.rule && (a.rule.severity || a.rule.level)) || (a.most_recent_instance && a.most_recent_instance.severity) || a.severity || 'unknown',
+              rule: a.rule ? (a.rule.id || a.rule.name || a.rule) : (a.rule_id || 'rule'),
+              url: a.html_url || `https://github.com/${owner}/${repo}/security/code-scanning/alerts/${a.number}`,
+              location: a.most_recent_instance && a.most_recent_instance.location ? (a.most_recent_instance.location.path || `line ${a.most_recent_instance.location.start_line}`) : '',
+              message: (a.most_recent_instance && a.most_recent_instance.message && a.most_recent_instance.message.text) || (a.rule && a.rule.description) || ''
+            }));
+            const summary = {
+              repo: `${owner}/${repo}`,
+              totalOpen: alerts.length,
+              counts,
+              top
+            };
+            fs.writeFileSync('codeql_summary.json', JSON.stringify(summary, null, 2));
+            // also write a human-readable text summary
+            let txt = `CodeQL Nightly Summary for ${owner}/${repo}\nTotal open alerts: ${alerts.length}\n`;
+            txt += 'Severity counts:\n';
+            for (const k of Object.keys(counts)) txt += ` - ${k}: ${counts[k]}\n`;
+            if (top.length > 0) {
+              txt += '\nTop alerts (first 10):\n';
+              for (const t of top) txt += ` - [${t.severity}] ${t.rule}: ${t.url} ${t.location}\n`;
             }
-            fs.writeFileSync('codeql_nightly_summary.txt', summary);
+            fs.writeFileSync('codeql_nightly_summary.txt', txt);
             return { alertCount: alerts.length };
 
       - name: Post summary to Slack
