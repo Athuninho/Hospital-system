@@ -1,0 +1,89 @@
+name: CodeQL Nightly
+
+on:
+  schedule:
+    - cron: '0 1 * * *' # every day at 01:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  codeql-nightly:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript
+          config-file: .github/codeql/codeql-config.yml
+
+      - name: Autobuild (CodeQL)
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Run CodeQL analysis
+        uses: github/codeql-action/analyze@v2
+
+      - name: Create summary file from CodeQL alerts
+        uses: actions/github-script@v6
+        id: summary
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const resp = await github.rest.codeScanning.listAlertsForRepo({ owner, repo, state: 'open', per_page: 500 });
+            const alerts = resp.data || [];
+            const counts = alerts.reduce((acc, a) => {
+              const sev = (a.rule && (a.rule.severity || a.rule.level)) || (a.most_recent_instance && a.most_recent_instance.severity) || a.severity || 'unknown';
+              const s = String(sev).toLowerCase();
+              acc[s] = (acc[s] || 0) + 1;
+              return acc;
+            }, {});
+            let summary = `CodeQL Nightly Summary for ${owner}/${repo}\n`;
+            summary += `Total open alerts: ${alerts.length}\n`;
+            summary += `Severity counts:\n`;
+            for (const k of Object.keys(counts)) summary += ` - ${k}: ${counts[k]}\n`;
+            if (alerts.length > 0) {
+              summary += '\nTop alerts (first 10):\n';
+              const top = alerts.slice(0,10);
+              for (const a of top) {
+                const sev = (a.rule && (a.rule.severity || a.rule.level)) || (a.most_recent_instance && a.most_recent_instance.severity) || a.severity || 'unknown';
+                const rule = a.rule ? (a.rule.id || a.rule.name || a.rule) : (a.rule_id || 'rule');
+                const url = a.html_url || `https://github.com/${owner}/${repo}/security/code-scanning/alerts/${a.number}`;
+                const loc = a.most_recent_instance && a.most_recent_instance.location ? (a.most_recent_instance.location.path || `line ${a.most_recent_instance.location.start_line}`) : '';
+                summary += ` - [${String(sev)}] ${rule}: ${url} ${loc}\n`;
+              }
+            }
+            fs.writeFileSync('codeql_nightly_summary.txt', summary);
+            return { alertCount: alerts.length };
+
+      - name: Post summary to Slack
+        if: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          SUMMARY=$(cat codeql_nightly_summary.txt)
+          PAYLOAD=$(jq -n --arg text "$SUMMARY" '{text: $text}')
+          curl -s -X POST -H 'Content-type: application/json' --data "$PAYLOAD" ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Post summary to MS Teams
+        if: ${{ secrets.MSTEAMS_WEBHOOK_URL }}
+        run: |
+          SUMMARY=$(cat codeql_nightly_summary.txt)
+          PAYLOAD=$(jq -n --arg text "$SUMMARY" '{text: $text}')
+          curl -s -X POST -H 'Content-type: application/json' --data "$PAYLOAD" ${{ secrets.MSTEAMS_WEBHOOK_URL }}
+
+      - name: Upload summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-nightly-summary
+          path: codeql_nightly_summary.txt
