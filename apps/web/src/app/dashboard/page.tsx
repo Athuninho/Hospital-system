@@ -35,16 +35,6 @@ export default function DashboardPage() {
           </Button>
         </div>
       </header>
-            onClick={() => {
-              localStorage.removeItem("accessToken")
-              localStorage.removeItem("refreshToken")
-              router.push("/login")
-            }}
-          >
-            Logout
-          </Button>
-        </div>
-      </header>
       <main className="flex-1 p-6 bg-muted/20">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border bg-card p-6 shadow">
