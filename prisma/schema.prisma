@@ -393,5 +393,3 @@ model AuditLog {
   changes    Json?
   createdAt  DateTime @default(now())
 }
-
-@@index([medicalRecordNumber])
