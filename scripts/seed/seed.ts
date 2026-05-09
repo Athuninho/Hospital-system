@@ -16,14 +16,14 @@ async function main() {
 
   // create a sample hospital
   const hosp = await prisma.hospital.upsert({
-    where: { code: 'HOSP-001' },
+    where: { code: 'MCH' },
     update: {},
     create: {
-      name: 'Sample County Hospital',
-      code: 'HOSP-001',
-      address: 'Nairobi, Kenya',
-      phone: '+254700000000',
-      email: 'info@samplehospital.ke',
+      name: 'Mombasa County Hospital',
+      code: 'MCH',
+      address: 'Mombasa, Kenya',
+      phone: '+254104543575',
+      email: 'info@mombasahospital.ke',
     },
   });
 
@@ -50,11 +50,11 @@ async function main() {
     create: {
       hospitalId: hosp.id,
       medicalRecordNumber: 'MRN-0001',
-      firstName: 'John',
-      lastName: 'Doe',
-      dob: new Date('1988-05-15'),
+      firstName: 'Elias',
+      lastName: 'Mugambi',
+      dob: new Date('1997-02-03'),
       gender: 'MALE',
-      phone: '+254722000000',
+      phone: '+254721747787',
     },
   });
 
