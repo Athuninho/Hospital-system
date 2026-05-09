@@ -341,6 +341,38 @@ model Payment {
   invoice    Invoice  @relation(fields: [invoiceId], references: [id])
 }
 
+enum OrderStatus {
+  PENDING
+  FULFILLED
+  CANCELLED
+  PARTIALLY_FULFILLED
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  hospitalId  String
+  patientId   String
+  createdBy   String?     // staffId or userId
+  status      OrderStatus @default(PENDING)
+  totalAmount Float       @default(0)
+  createdAt   DateTime    @default(now())
+
+  patient     Patient     @relation(fields: [patientId], references: [id])
+  hospital    Hospital    @relation(fields: [hospitalId], references: [id])
+  items       OrderItem[]
+}
+
+model OrderItem {
+  id       String  @id @default(uuid())
+  orderId  String
+  code     String
+  name     String
+  quantity Int     @default(1)
+  unitPrice Float
+
+  order    Order   @relation(fields: [orderId], references: [id])
+}
+
 model Ward {
   id          String   @id @default(uuid())
   hospitalId  String
