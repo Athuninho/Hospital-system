@@ -57,9 +57,41 @@ jobs:
               location: a.most_recent_instance && a.most_recent_instance.location ? (a.most_recent_instance.location.path || `line ${a.most_recent_instance.location.start_line}`) : '',
               message: (a.most_recent_instance && a.most_recent_instance.message && a.most_recent_instance.message.text) || (a.rule && a.rule.description) || ''
             }));
+            // try to load allowlist to filter alerts
+            let allowlist = { allow: [] };
+            try {
+              const file = await github.rest.repos.getContent({ owner, repo, path: '.github/codeql/allowlist.json' });
+              const content = Buffer.from(file.data.content, 'base64').toString();
+              allowlist = JSON.parse(content || '{}');
+            } catch (e) {
+              core.info('No allowlist found or failed to load; continuing without allowlist');
+            }
+
+            const isAllowed = (a) => {
+              if (!allowlist || !allowlist.allow) return false;
+              for (const rule of allowlist.allow) {
+                const rid = rule.ruleId || rule.rule || rule.id;
+                const pathPat = rule.pathPattern;
+                const alertRuleId = a.rule ? (a.rule.id || a.rule.name) : (a.rule_id || '');
+                if (rid && String(alertRuleId).toLowerCase() === String(rid).toLowerCase()) {
+                  if (!pathPat) return true;
+                  const path = a.most_recent_instance && a.most_recent_instance.location ? (a.most_recent_instance.location.path || '') : '';
+                  try {
+                    const re = new RegExp(pathPat);
+                    if (re.test(path)) return true;
+                  } catch (e) {
+                    if (pathPat === path) return true;
+                  }
+                }
+              }
+              return false;
+            };
+
+            const filteredAlerts = alerts.filter(a => !isAllowed(a));
+
             const summary = {
               repo: `${owner}/${repo}`,
-              totalOpen: alerts.length,
+              totalOpen: filteredAlerts.length,
               counts,
               top
             };

@@ -90,8 +90,43 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             core.info(`Checking code scanning alerts for ${owner}/${repo}`);
+            // fetch allowlist from repo (optional)
+            let allowlist = { allow: [] };
+            try {
+              const file = await github.rest.repos.getContent({ owner, repo, path: '.github/codeql/allowlist.json' });
+              const content = Buffer.from(file.data.content, 'base64').toString();
+              allowlist = JSON.parse(content || '{}');
+            } catch (e) {
+              core.info('No allowlist found or failed to load; continuing without allowlist');
+            }
+
             const resp = await github.rest.codeScanning.listAlertsForRepo({ owner, repo, state: 'open', per_page: 100 });
-            const alerts = resp.data || [];
+            let alerts = resp.data || [];
+
+            // filter out allowlisted alerts
+            const isAllowed = (a) => {
+              if (!allowlist || !allowlist.allow) return false;
+              for (const rule of allowlist.allow) {
+                const rid = rule.ruleId || rule.rule || rule.id;
+                const pathPat = rule.pathPattern;
+                const alertRuleId = a.rule ? (a.rule.id || a.rule.name) : (a.rule_id || '');
+                if (rid && String(alertRuleId).toLowerCase() === String(rid).toLowerCase()) {
+                  if (!pathPat) return true;
+                  const path = a.most_recent_instance && a.most_recent_instance.location ? (a.most_recent_instance.location.path || '') : '';
+                  try {
+                    const re = new RegExp(pathPat);
+                    if (re.test(path)) return true;
+                  } catch (e) {
+                    // invalid regex - ignore path check
+                    if (pathPat === path) return true;
+                  }
+                }
+              }
+              return false;
+            };
+
+            alerts = alerts.filter(a => !isAllowed(a));
+
             const highSev = alerts.filter(a => {
               const rsev = (a.rule && (a.rule.severity || a.rule.level)) || (a.most_recent_instance && a.most_recent_instance.severity) || a.severity || '';
               const sev = String(rsev || '').toLowerCase();
@@ -103,7 +138,7 @@ jobs:
               const prNumber = github.context.payload.pull_request.number;
               const marker = '<!-- codeql-alert-summary -->';
               let body = `${marker}\n## CodeQL Scan Summary\n`;
-              body += `Total open alerts: **${alerts.length}**\n\n`;
+              body += `Total open alerts (after allowlist): **${alerts.length}**\n\n`;
               if (alerts.length > 0) {
                 const top = alerts.slice(0, 10);
                 body += '| Severity | Rule | Message | Location |\n';
@@ -111,7 +146,7 @@ jobs:
                 for (const a of top) {
                   const sev = (a.rule && (a.rule.severity || a.rule.level)) || (a.most_recent_instance && a.most_recent_instance.severity) || a.severity || 'unknown';
                   const ruleName = a.rule ? (a.rule.id || a.rule.name || 'rule') : (a.rule_id || 'rule');
-                  const message = a.alert_instance && a.alert_instance.message ? a.alert_instance.message.text : (a.rule && a.rule.description ? a.rule.description : '');
+                  const message = a.most_recent_instance && a.most_recent_instance.message ? a.most_recent_instance.message.text : (a.rule && a.rule.description ? a.rule.description : '');
                   const alertUrl = a.html_url || `https://github.com/${owner}/${repo}/security/code-scanning/alerts/${a.number}`;
                   const location = (a.most_recent_instance && a.most_recent_instance.location && (a.most_recent_instance.location.path || a.most_recent_instance.location.start_line)) ? (a.most_recent_instance.location.path || `line ${a.most_recent_instance.location.start_line}`) : '';
                   body += `| ${sev} | [${ruleName}](${alertUrl}) | ${message.replace(/\|/g, '\\|').slice(0,120)} | ${location} |\n`;
@@ -132,7 +167,7 @@ jobs:
             }
 
             if (highSev.length > 0) {
-              core.setFailed(`CodeQL found ${highSev.length} high/critical severity alert(s). Review: https://github.com/${owner}/${repo}/security/code-scanning`);
+              core.setFailed(`CodeQL found ${highSev.length} high/critical severity alert(s) (after allowlist). Review: https://github.com/${owner}/${repo}/security/code-scanning`);
             } else {
-              core.info('No high-severity code scanning alerts found.');
+              core.info('No high-severity code scanning alerts found (after allowlist).');
             }
