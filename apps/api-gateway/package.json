@@ -23,7 +23,7 @@
     "passport-jwt": "^4.0.0",
     "bcryptjs": "^2.4.3",
     "nodemailer": "^6.9.0",
-    "@nestjs/throttler": "^2.1.0",
+    "@nestjs/throttler": "^4.0.0",
     "zxcvbn": "^4.4.2",
     "helmet": "^6.0.0",
     "compression": "^1.7.4",
