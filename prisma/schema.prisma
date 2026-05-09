@@ -77,6 +77,9 @@ model User {
   passwordResetToken  String? @unique
   passwordResetExpires DateTime?
   mfaEnabled          Boolean @default(false)
+  mfaSecret           String?
+  mfaMethod           String? @default("TOTP") // e.g. TOTP, SMS
+  mfaPhone            String?
   createdAt    DateTime @default(now())
 
   role         Role     @relation(fields: [roleId], references: [id])

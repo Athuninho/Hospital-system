@@ -40,6 +40,36 @@ export class AuthService {
   }
 
   async login(user: any) {
+    if (user.mfaEnabled) {
+      const payload = { sub: user.id, email: user.email, mfaRequired: true };
+      const mfaToken = this.jwt.sign(payload, { expiresIn: '5m' });
+      return { mfaToken, requiresMfa: true, method: user.mfaMethod };
+    }
+    return this.generateAuthTokens(user);
+  }
+
+  async completeMfaLogin(user: any) {
+    return this.generateAuthTokens(user);
+  }
+
+  async verifyMfaLogin(mfaToken: string, code: string, mfaService: any) {
+    try {
+      const payload = this.jwt.verify(mfaToken);
+      if (!payload.mfaRequired) throw new UnauthorizedException('Invalid token');
+      
+      const isValid = await mfaService.verifyTotp(payload.sub, code);
+      if (!isValid) throw new UnauthorizedException('Invalid MFA code');
+      
+      const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+      if (!user) throw new UnauthorizedException('User not found');
+      
+      return this.completeMfaLogin(user);
+    } catch (e) {
+      throw new UnauthorizedException('Invalid or expired MFA token');
+    }
+  }
+
+  private async generateAuthTokens(user: any) {
     const payload = { sub: user.id, email: user.email, roleId: user.roleId };
     const accessToken = this.jwt.sign(payload);
 

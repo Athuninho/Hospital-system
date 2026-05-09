@@ -3,7 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PrismaModule } from '@hospital/prisma';
-import { config } from 'dotenv';
+import { MfaService } from './mfa.service';
 
 config();
 
@@ -15,8 +15,8 @@ config();
       signOptions: { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' },
     }),
   ],
-  providers: [AuthService],
+  providers: [AuthService, MfaService],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [AuthService, MfaService],
 })
 export class AuthModule {}
