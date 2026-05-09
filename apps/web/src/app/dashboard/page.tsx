@@ -19,12 +19,22 @@ export default function DashboardPage() {
   if (!mounted) return null
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col flex-1">
       <header className="flex h-16 items-center border-b px-6 bg-background">
-        <h1 className="text-lg font-semibold">Hospital Dashboard</h1>
+        <h1 className="text-lg font-semibold">Overview</h1>
         <div className="ml-auto flex items-center gap-4">
           <Button 
             variant="outline" 
+            onClick={() => {
+              localStorage.removeItem("accessToken")
+              localStorage.removeItem("refreshToken")
+              router.push("/login")
+            }}
+          >
+            Logout
+          </Button>
+        </div>
+      </header>
             onClick={() => {
               localStorage.removeItem("accessToken")
               localStorage.removeItem("refreshToken")
