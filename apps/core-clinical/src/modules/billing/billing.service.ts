@@ -1,9 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@hospital/prisma';
+import { MpesaService } from './mpesa.service';
 
 @Injectable()
 export class BillingService {
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(BillingService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private mpesa: MpesaService
+  ) {}
 
   async createInvoice(data: {
     hospitalId: string;
@@ -20,17 +26,6 @@ export class BillingService {
     });
   }
 
-  async getInvoices(patientId?: string) {
-    return this.prisma.invoice.findMany({
-      where: patientId ? { patientId } : {},
-      include: {
-        patient: true,
-        payments: true,
-      },
-      orderBy: { issuedAt: 'desc' },
-    });
-  }
-
   async initiateMpesaSTKPush(invoiceId: string, phone: string) {
     const invoice = await this.prisma.invoice.findUnique({
       where: { id: invoiceId },
@@ -38,34 +33,72 @@ export class BillingService {
 
     if (!invoice) throw new Error('Invoice not found');
 
-    // M-Pesa STK Push Logic (Mock for now, would use Daraja API)
-    console.log(`Initiating STK Push for ${phone} - Amount: ${invoice.totalAmount}`);
-    
-    // In a real app, you'd call axios.post('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', ...)
-    
-    // We create a pending payment record
+    // 1. Initiate STK Push via Safaricom
+    const response = await this.mpesa.initiateStkPush(phone, invoice.totalAmount, invoiceId.slice(0, 8));
+
+    // 2. Create a pending payment record with CheckoutRequestID
     return this.prisma.payment.create({
       data: {
         invoiceId,
         amount: invoice.totalAmount,
         method: 'MPESA',
         status: 'PENDING',
-        transactionRef: `MPESA_${Math.random().toString(36).substring(7).toUpperCase()}`,
+        checkoutRequestId: response.CheckoutRequestID,
+        reference: `INV-${invoiceId.slice(0, 8)}`,
       },
     });
   }
 
   async handleMpesaWebhook(payload: any) {
-    // Handle M-Pesa Result
     const { Body } = payload;
-    const { stkCallback } = Body;
-    const { CheckoutRequestID, ResultCode, ResultDesc, CallbackMetadata } = stkCallback;
+    if (!Body || !Body.stkCallback) {
+      this.logger.error('Invalid M-Pesa payload', payload);
+      return;
+    }
+
+    const { CheckoutRequestID, ResultCode, ResultDesc, CallbackMetadata } = Body.stkCallback;
+
+    // Find the payment record by CheckoutRequestID
+    const payment = await this.prisma.payment.findUnique({
+      where: { checkoutRequestId: CheckoutRequestID },
+    });
+
+    if (!payment) {
+      this.logger.error(`Payment not found for CheckoutRequestID: ${CheckoutRequestID}`);
+      return;
+    }
 
     if (ResultCode === 0) {
-      // Payment Successful
-      // Update payment and invoice status
-      // In a real app, find payment by CheckoutRequestID (stored when initiated)
-      // For now, let's assume we have the transaction ref
+      // SUCCESS
+      const metadata = CallbackMetadata.Item;
+      const receiptNumber = metadata.find((i: any) => i.Name === 'MpesaReceiptNumber')?.Value;
+
+      await this.prisma.$transaction([
+        // 1. Update Payment Status
+        this.prisma.payment.update({
+          where: { id: payment.id },
+          data: {
+            status: 'PAID',
+            mpesaReceiptNumber: receiptNumber,
+          },
+        }),
+        // 2. Update Invoice Status
+        this.prisma.invoice.update({
+          where: { id: payment.invoiceId },
+          data: { status: 'PAID' },
+        }),
+      ]);
+
+      this.logger.log(`Payment SUCCESS for Invoice ${payment.invoiceId}. Receipt: ${receiptNumber}`);
+    } else {
+      // FAILED (or Cancelled)
+      await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: { status: 'FAILED' },
+      });
+
+      this.logger.warn(`Payment FAILED for Invoice ${payment.invoiceId}. Reason: ${ResultDesc}`);
     }
   }
 }
+
