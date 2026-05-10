@@ -1,17 +1,17 @@
+import { Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { Module, Controller, Get } from '@nestjs/common';
+import { EventsGateway } from './events.gateway';
 
-@Controller('health')
-class HealthController { @Get() ready() { return { ws: 'ok' }; } }
-
-@Module({ controllers: [HealthController] })
+@Module({
+  providers: [EventsGateway],
+})
 class AppModule {}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('ws');
+  app.enableCors();
   await app.listen(4000);
-  console.log('WebSocket server (gateway) running on port 4000');
+  console.log('WebSocket Gateway running on port 4000');
 }
 
 bootstrap();
