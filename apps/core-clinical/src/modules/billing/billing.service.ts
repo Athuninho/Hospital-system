@@ -11,7 +11,16 @@ export class BillingService {
     private mpesa: MpesaService
   ) {}
 
+  async getInvoices(patientId?: string) {
+    return this.prisma.invoice.findMany({
+      where: patientId ? { patientId } : {},
+      include: { patient: true },
+      orderBy: { issuedAt: 'desc' },
+    });
+  }
+
   async createInvoice(data: {
+
     hospitalId: string;
     patientId: string;
     totalAmount: number;
@@ -100,5 +109,42 @@ export class BillingService {
       this.logger.warn(`Payment FAILED for Invoice ${payment.invoiceId}. Reason: ${ResultDesc}`);
     }
   }
+
+  async recordCashPayment(invoiceId: string, amount: number, reference?: string) {
+    return this.prisma.$transaction([
+      this.prisma.payment.create({
+        data: {
+          invoiceId,
+          amount,
+          method: 'CASH',
+          status: 'PAID',
+          reference: reference || `CASH-${Date.now()}`,
+        },
+      }),
+      this.prisma.invoice.update({
+        where: { id: invoiceId },
+        data: { status: 'PAID' },
+      }),
+    ]);
+  }
+
+  async recordBankPayment(invoiceId: string, amount: number, bankRef: string) {
+    return this.prisma.$transaction([
+      this.prisma.payment.create({
+        data: {
+          invoiceId,
+          amount,
+          method: 'BANK_TRANSFER',
+          status: 'PAID',
+          reference: bankRef,
+        },
+      }),
+      this.prisma.invoice.update({
+        where: { id: invoiceId },
+        data: { status: 'PAID' },
+      }),
+    ]);
+  }
 }
+
 

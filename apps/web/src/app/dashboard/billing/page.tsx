@@ -28,10 +28,42 @@ export default function BillingDashboard() {
     })
     .then(res => res.json())
     .then(data => {
-      alert("STK Push sent to your phone! Please complete the payment.")
+      alert("STK Push sent to your phone! Please complete the payment.");
     })
-    .catch(err => alert("Payment initiation failed"))
+    .catch(err => alert("Payment initiation failed"));
   }
+
+  const handleCashPay = (invoiceId: string, amount: number) => {
+    if (!confirm(`Process Cash Payment of KES ${amount}?`)) return;
+
+    fetch('/api/clinical/billing/payments/cash', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ invoiceId, amount })
+    })
+    .then(() => {
+      alert("Cash payment recorded!");
+      window.location.reload();
+    })
+    .catch(() => alert("Failed to record cash payment"));
+  }
+
+  const handleBankPay = (invoiceId: string, amount: number) => {
+    const reference = prompt("Enter Bank Reference Number:");
+    if (!reference) return;
+
+    fetch('/api/clinical/billing/payments/bank', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ invoiceId, amount, reference })
+    })
+    .then(() => {
+      alert("Bank transfer recorded!");
+      window.location.reload();
+    })
+    .catch(() => alert("Failed to record bank payment"));
+  }
+
 
   return (
     <div className="p-8 space-y-8">
@@ -99,13 +131,29 @@ export default function BillingDashboard() {
                   <td className="px-6 py-4 text-sm">{new Date(inv.issuedAt).toLocaleDateString()}</td>
                   <td className="px-6 py-4">
                     {inv.status === 'PENDING' && (
-                      <button 
-                        onClick={() => handlePay(inv.id)}
-                        className="flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-sm hover:bg-primary/90"
-                      >
-                        <CreditCard size={14} />
-                        Pay via M-Pesa
-                      </button>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handlePay(inv.id)}
+                          className="flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 rounded-md text-xs hover:bg-primary/90"
+                        >
+                          <CreditCard size={12} />
+                          M-Pesa
+                        </button>
+                        <button 
+                          onClick={() => handleCashPay(inv.id, inv.totalAmount)}
+                          className="flex items-center gap-2 bg-green-600 text-white px-3 py-1.5 rounded-md text-xs hover:bg-green-700"
+                        >
+                          <DollarSign size={12} />
+                          Cash
+                        </button>
+                        <button 
+                          onClick={() => handleBankPay(inv.id, inv.totalAmount)}
+                          className="flex items-center gap-2 bg-blue-600 text-white px-3 py-1.5 rounded-md text-xs hover:bg-blue-700"
+                        >
+                          <ArrowUpRight size={12} />
+                          Bank
+                        </button>
+                      </div>
                     )}
                     {inv.status === 'PAID' && (
                       <button className="flex items-center gap-2 text-primary hover:underline text-sm">
@@ -113,6 +161,7 @@ export default function BillingDashboard() {
                         View Receipt
                       </button>
                     )}
+
                   </td>
                 </tr>
               )) : (

@@ -24,4 +24,15 @@ export class BillingController {
   webhook(@Body() payload: any) {
     return this.billingService.handleMpesaWebhook(payload);
   }
+
+  @Post('payments/cash')
+  payCash(@Body() data: { invoiceId: string; amount: number; reference?: string }) {
+    return this.billingService.recordCashPayment(data.invoiceId, data.amount, data.reference);
+  }
+
+  @Post('payments/bank')
+  payBank(@Body() data: { invoiceId: string; amount: number; reference: string }) {
+    return this.billingService.recordBankPayment(data.invoiceId, data.amount, data.reference);
+  }
 }
+
