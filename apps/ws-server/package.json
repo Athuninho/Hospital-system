@@ -6,9 +6,12 @@
     "dev": "ts-node-dev --respawn --transpile-only src/main.ts"
   },
   "dependencies": {
-    "@nestjs/platform-ws": "^9.0.0",
+    "@nestjs/platform-socket.io": "^9.0.0",
+    "@nestjs/websockets": "^9.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
+    "socket.io": "^4.6.0",
     "@prisma/client": "*"
   }
+
 }
