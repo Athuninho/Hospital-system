@@ -4,27 +4,31 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/web ./apps/web
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY apps/web/package.json ./apps/web/
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
-# Note: Next.js build requires environment variables if they are used at build time
-# ENV NEXT_PUBLIC_API_URL=...
+COPY . .
 
+# Next.js build
 RUN pnpm --filter @hospital/web build
 
 FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV production
 
-# Next.js standalone build is more efficient
+# We only need the public folder, .next/static and .next/standalone
 COPY --from=builder /app/apps/web/public ./apps/web/public
 COPY --from=builder /app/apps/web/.next/standalone ./
 COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
 
 EXPOSE 3000
 
+# Set the port
+ENV PORT 3000
+
+# Start Next.js
 CMD ["node", "apps/web/server.js"]
