@@ -1,34 +1,43 @@
+# Use Node.js 20 base image
 FROM node:20-alpine AS builder
 
+# Set working directory
 WORKDIR /app
 
+# Install pnpm
 RUN npm install -g pnpm
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY prisma ./prisma/
+# Copy root configurations
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 
-COPY apps/core-clinical ./apps/core-clinical
-COPY libs/prisma ./libs/prisma
+# Copy package.json of relevant apps/libs
+COPY apps/core-clinical/package.json ./apps/core-clinical/
+COPY libs/prisma/package.json ./libs/prisma/
 
-RUN pnpm install --frozen-lockfile
+# Install dependencies
+RUN pnpm install
 
-RUN pnpm --filter @hospital/prisma build
+# Copy entire source
+COPY . .
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Build the core-clinical app
 RUN pnpm --filter @hospital/core-clinical build
 
+# Final production image
 FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
-COPY --from=builder /app/apps/core-clinical/package.json ./apps/core-clinical/
-COPY --from=builder /app/apps/core-clinical/dist ./apps/core-clinical/dist
-COPY --from=builder /app/libs/prisma/dist ./libs/prisma/dist
-COPY --from=builder /app/libs/prisma/package.json ./libs/prisma/package.json
+# Copy built assets and dependencies
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/apps/core-clinical/dist ./dist
+COPY --from=builder /app/apps/core-clinical/package.json ./package.json
 
+# Expose the service port
 EXPOSE 3001
 
-ENV NODE_ENV=production
-
-CMD ["node", "apps/core-clinical/dist/main.js"]
+# Start the application
+CMD ["node", "dist/main.js"]

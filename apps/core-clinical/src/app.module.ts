@@ -6,6 +6,7 @@ import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { BillingModule } from './modules/billing/billing.module';
 import { PharmacyModule } from './modules/pharmacy/pharmacy.module';
 import { LabModule } from './modules/lab/lab.module';
+import { WardsModule } from './modules/wards/wards.module';
 import { PrismaModule } from '@hospital/prisma';
 
 @Module({
@@ -18,7 +19,9 @@ import { PrismaModule } from '@hospital/prisma';
     BillingModule,
     PharmacyModule,
     LabModule,
+    WardsModule,
   ],
+
 
 
 

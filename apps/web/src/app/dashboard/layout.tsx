@@ -18,8 +18,10 @@ export default function DashboardLayout({
     { name: "Clinical (EMR)", href: "/dashboard/clinical" },
     { name: "Pharmacy", href: "/dashboard/pharmacy" },
     { name: "Laboratory", href: "/dashboard/lab" },
+    { name: "Ward Management", href: "/dashboard/wards" },
     { name: "Billing & Payments", href: "/dashboard/billing" },
     { name: "MFA Settings", href: "/dashboard/settings/mfa" },
+
 
 
   ]
