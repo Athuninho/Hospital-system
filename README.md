@@ -8,7 +8,30 @@ Workspaces:
 - `apps/worker` — background workers (BullMQ)
 - `libs/prisma` — Prisma client wrapper
 
-Next steps:
-- Install dependencies with your preferred package manager (pnpm recommended for workspaces).
-- Generate Prisma client: `npx prisma generate`
-- Run local development: `pnpm -w -r dev` or use per-app scripts.
+## Getting Started
+
+### Prerequisites
+- Node.js 20+
+- pnpm 8+
+- Docker & Docker Compose
+
+### Local Development
+1. Install dependencies: `pnpm install`
+2. Set up environment: `cp .env.example .env`
+3. Generate Prisma client: `pnpm --filter @hospital/prisma prisma generate`
+4. Run dev servers: `pnpm dev`
+
+### Running with Docker
+```bash
+docker-compose up --build
+```
+
+## Project Status
+- [x] Monorepo Foundation
+- [x] Database Schema (Prisma/Postgres)
+- [x] Authentication (JWT/RBAC/MFA)
+- [x] Patient Dashboard (List, Register, Profile)
+- [x] Dockerization (Compose/Microservices)
+- [ ] Appointment System (Pending)
+- [ ] Billing & M-Pesa (Pending)
+
