@@ -1,21 +1,46 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '@hospital/prisma';
 
 @Injectable()
 export class PatientsService {
-  private readonly items = [] as any[];
+  constructor(private readonly prisma: PrismaService) {}
 
-  findAll() {
-    return this.items;
+  async findAll() {
+    return this.prisma.patient.findMany({
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        visits: {
+          take: 1,
+          orderBy: { visitAt: 'desc' }
+        }
+      }
+    });
   }
 
-  findOne(id: string) {
-    return this.items.find((i) => i.id === id) || null;
+  async findOne(id: string) {
+    return this.prisma.patient.findUnique({
+      where: { id },
+      include: {
+        contacts: true,
+        medicalHistories: true,
+        allergies: true,
+        visits: true,
+        prescriptions: true,
+      }
+    });
   }
 
-  create(payload: any) {
-    const id = String(this.items.length + 1);
-    const record = { id, ...payload };
-    this.items.push(record);
-    return record;
+  async create(payload: any) {
+    // Generate a medical record number if not provided
+    const mrn = payload.medicalRecordNumber || `PAT-${Math.floor(1000 + Math.random() * 9000)}`;
+    
+    return this.prisma.patient.create({
+      data: {
+        ...payload,
+        medicalRecordNumber: mrn,
+      }
+    });
   }
 }
+

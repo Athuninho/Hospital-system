@@ -14,8 +14,10 @@
     "@nestjs/platform-express": "^9.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.0.0",
-    "@prisma/client": "*"
+    "@prisma/client": "*",
+    "@hospital/prisma": "workspace:*"
   },
+
   "devDependencies": {
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
