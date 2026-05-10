@@ -15,7 +15,10 @@ export default function DashboardLayout({
     { name: "Overview", href: "/dashboard" },
     { name: "Patients", href: "/dashboard/patients" },
     { name: "Appointments", href: "/dashboard/appointments" },
+    { name: "Clinical (EMR)", href: "/dashboard/clinical" },
+    { name: "Billing & Payments", href: "/dashboard/billing" },
     { name: "MFA Settings", href: "/dashboard/settings/mfa" },
+
   ]
 
   return (
