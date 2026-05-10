@@ -1,21 +1,128 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '@hospital/prisma';
 
 @Injectable()
 export class EncountersService {
-  private readonly items = [] as any[];
+  constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.items;
+  async findAll(patientId?: string) {
+    return this.prisma.encounter.findMany({
+      where: patientId ? { patientId } : {},
+      include: {
+        doctor: true,
+        patient: true,
+        prescriptions: {
+          include: { items: true }
+        },
+        labRequests: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
   }
 
-  findOne(id: string) {
-    return this.items.find((i) => i.id === id) || null;
+  async findOne(id: string) {
+    const encounter = await this.prisma.encounter.findUnique({
+      where: { id },
+      include: {
+        doctor: true,
+        patient: true,
+        prescriptions: {
+          include: { items: true }
+        },
+        labRequests: {
+          include: { results: true }
+        },
+        files: true
+      }
+    });
+
+    if (!encounter) {
+      throw new NotFoundException(`Encounter with ID ${id} not found`);
+    }
+
+    return encounter;
   }
 
-  create(payload: any) {
-    const id = String(this.items.length + 1);
-    const record = { id, ...payload };
-    this.items.push(record);
-    return record;
+  async create(data: {
+    patientId: string;
+    doctorId: string;
+    appointmentId?: string;
+    visitId?: string;
+    notes?: string;
+    diagnosis?: string;
+  }) {
+    return this.prisma.encounter.create({
+      data,
+      include: {
+        patient: true,
+        doctor: true
+      }
+    });
+  }
+
+  async update(id: string, data: any) {
+    return this.prisma.encounter.update({
+      where: { id },
+      data
+    });
+  }
+
+  async addPrescription(encounterId: string, data: {
+    patientId: string;
+    prescribedBy: string;
+    notes?: string;
+    items: { drugId: string; drugName: string; dosage: string; frequency: string; duration: string; instructions?: string }[];
+  }) {
+    return this.prisma.prescription.create({
+      data: {
+        encounterId,
+        patientId: data.patientId,
+        prescribedBy: data.prescribedBy,
+        notes: data.notes,
+        items: {
+          create: data.items
+        }
+      },
+      include: {
+        items: true
+      }
+    });
+  }
+
+  async addLabRequest(encounterId: string, data: {
+    patientId: string;
+    requestedBy: string;
+    testType: string;
+    notes?: string;
+  }) {
+    return this.prisma.labRequest.create({
+      data: {
+        encounterId,
+        patientId: data.patientId,
+        requestedBy: data.requestedBy,
+        testType: data.testType,
+      }
+    });
+  }
+
+  async addFileAttachment(encounterId: string, data: {
+    patientId: string;
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+    labResultId?: string;
+  }) {
+    return this.prisma.fileAttachment.create({
+      data: {
+        encounterId,
+        patientId: data.patientId,
+        fileName: data.fileName,
+        fileUrl: data.fileUrl,
+        fileType: data.fileType,
+        labResultId: data.labResultId
+      }
+    });
   }
 }
+
+

@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
+
 
 enum RoleName {
   SUPER_ADMIN
@@ -54,7 +54,12 @@ model Hospital {
   patients    Patient[]
   wards       Ward[]
   drugStocks  DrugInventory[]
+  users       User[]
+  visits      Visit[]
+  appointments Appointment[]
+  orders      Order[]
 }
+
 
 model Role {
   id          String   @id @default(uuid())
@@ -89,6 +94,7 @@ model User {
   sessions     RefreshToken[]
 }
 
+
 model RefreshToken {
   id         String   @id @default(uuid())
   token      String   @unique
@@ -120,8 +126,9 @@ model Staff {
   schedules      Schedule[]
   appointments   Appointment[]
   encounters     Encounter[]
-  labRequests    LabRequest[]
+  labRequests    LabRequest[] @relation("RequestedBy")
 }
+
 
 model Patient {
   id                  String    @id @default(uuid())
@@ -152,7 +159,11 @@ model Patient {
   prescriptions       Prescription[]
   admissions          Admission[]
   files               FileAttachment[]
+  labRequests         LabRequest[]
+  invoices            Invoice[]
+  orders              Order[]
 }
+
 
 model Contact {
   id         String   @id @default(uuid())
@@ -215,14 +226,16 @@ model Appointment {
   patient      Patient           @relation(fields: [patientId], references: [id])
   doctor       Staff?            @relation(fields: [doctorId], references: [id])
   hospital     Hospital          @relation(fields: [hospitalId], references: [id])
+  encounters   Encounter[]
 }
+
 
 model Encounter {
   id           String    @id @default(uuid())
   patientId    String
   doctorId     String
   appointmentId String?
-  visitId      String?
+  visitId      String?   @unique
   notes        String?
   diagnosis    String?
   createdAt    DateTime  @default(now())
@@ -237,16 +250,20 @@ model Encounter {
   files        FileAttachment[]
 }
 
+
 model Prescription {
   id           String   @id @default(uuid())
   encounterId  String
+  patientId    String?
   prescribedBy String   // staffId
   notes        String?
   createdAt    DateTime @default(now())
 
   encounter    Encounter @relation(fields: [encounterId], references: [id])
+  patient      Patient?  @relation(fields: [patientId], references: [id])
   items        PrescriptionItem[]
 }
+
 
 model PrescriptionItem {
   id             String @id @default(uuid())
@@ -284,9 +301,11 @@ model LabRequest {
   requestedAt  DateTime @default(now())
 
   encounter    Encounter? @relation(fields: [encounterId], references: [id])
+  staff        Staff      @relation("RequestedBy", fields: [requestedBy], references: [id])
   patient      Patient    @relation(fields: [patientId], references: [id])
   results      LabResult[]
 }
+
 
 model LabResult {
   id          String   @id @default(uuid())
@@ -296,7 +315,9 @@ model LabResult {
   reportedAt  DateTime?
 
   labRequest  LabRequest @relation(fields: [labRequestId], references: [id])
+  files       FileAttachment[]
 }
+
 
 model FileAttachment {
   id           String   @id @default(uuid())
@@ -397,7 +418,7 @@ model Bed {
 model Admission {
   id          String   @id @default(uuid())
   patientId   String
-  bedId       String
+  bedId       String   @unique
   admittedAt  DateTime @default(now())
   dischargedAt DateTime?
   notes       String?
@@ -405,6 +426,7 @@ model Admission {
   patient     Patient  @relation(fields: [patientId], references: [id])
   bed         Bed      @relation(fields: [bedId], references: [id])
 }
+
 
 model Schedule {
   id        String   @id @default(uuid())

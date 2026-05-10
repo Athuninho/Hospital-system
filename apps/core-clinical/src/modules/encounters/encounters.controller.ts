@@ -19,4 +19,21 @@ export class EncountersController {
   create(@Body() payload: any) {
     return this.encountersService.create(payload);
   }
+
+  @Post(':id/prescriptions')
+  addPrescription(@Param('id') id: string, @Body() payload: any) {
+    return this.encountersService.addPrescription(id, payload);
+  }
+
+  @Post(':id/lab-requests')
+  addLabRequest(@Param('id') id: string, @Body() payload: any) {
+    return this.encountersService.addLabRequest(id, payload);
+  }
+
+  @Post(':id/files')
+  addFile(@Param('id') id: string, @Body() payload: any) {
+    return this.encountersService.addFileAttachment(id, payload);
+  }
 }
+
+
