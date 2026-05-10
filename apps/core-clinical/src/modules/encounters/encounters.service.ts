@@ -60,12 +60,38 @@ export class EncountersService {
     });
   }
 
-  async update(id: string, data: any) {
+  async update(id: string, data: { notes?: string; diagnosis?: string; vitals?: any }) {
+    const { vitals, ...rest } = data;
+    
+    // If vitals are provided, we either create or update them
+    if (vitals) {
+      const encounter = await this.prisma.encounter.findUnique({
+        where: { id },
+        select: { patientId: true }
+      });
+
+      if (encounter) {
+        await this.prisma.vitals.upsert({
+          where: { encounterId: id },
+          create: {
+            ...vitals,
+            encounterId: id,
+            patientId: encounter.patientId
+          },
+          update: vitals
+        });
+      }
+    }
+
     return this.prisma.encounter.update({
       where: { id },
-      data
+      data: rest,
+      include: {
+        vitals: true
+      }
     });
   }
+
 
   async addPrescription(encounterId: string, data: {
     patientId: string;

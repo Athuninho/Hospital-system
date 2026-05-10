@@ -39,4 +39,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   sendQueueUpdate(hospitalId: string, data: any) {
     this.server.to(`hospital-${hospitalId}`).emit('queue-updated', data);
   }
+
+  sendClinicalUpdate(hospitalId: string, data: any) {
+    this.server.to(`hospital-${hospitalId}`).emit('clinical-updated', data);
+  }
 }
+
