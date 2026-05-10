@@ -22,7 +22,7 @@ export class MpesaService {
         }
       );
       return response.data.access_token;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error('Failed to get M-Pesa access token', error.response?.data || error.message);
       throw new Error('M-Pesa Authentication Failed');
     }
@@ -56,7 +56,7 @@ export class MpesaService {
         }
       );
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error('STK Push Initiation Failed', error.response?.data || error.message);
       throw new Error('STK Push Initiation Failed');
     }
