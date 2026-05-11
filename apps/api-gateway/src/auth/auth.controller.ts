@@ -18,7 +18,7 @@ export class AuthController {
     if ((user as any).locked) throw new Error(`Account locked until ${(user as any).lockUntil}`);
     
     const result = await this.auth.login(user);
-    if (result.requiresMfa && result.method === 'SMS') {
+    if (typeof result === 'object' && 'requiresMfa' in result && result.requiresMfa && (result as any).method === 'SMS') {
       await this.mfaService.sendLoginSms((user as any).id);
     }
     return result;
