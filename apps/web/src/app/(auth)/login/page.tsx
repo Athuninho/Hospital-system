@@ -91,7 +91,7 @@ export default function LoginPage() {
     <div className="flex h-screen w-full items-center justify-center bg-muted/40">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Hospital Portal</CardTitle>
+          <CardTitle className="text-2xl">Coast General Hospital</CardTitle>
           <CardDescription>
             {requiresMfa 
               ? `Enter your ${mfaMethod} verification code` 

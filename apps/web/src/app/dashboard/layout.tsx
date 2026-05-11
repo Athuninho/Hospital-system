@@ -31,7 +31,7 @@ export default function DashboardLayout({
       {/* Sidebar */}
       <aside className="w-64 border-r bg-muted/40">
         <div className="flex h-16 items-center border-b px-6">
-          <span className="font-bold">Hospital Admin</span>
+          <span className="font-bold">Coast General Hospital</span>
         </div>
         <nav className="p-4 space-y-2">
           {navItems.map((item) => (

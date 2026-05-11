@@ -70,7 +70,7 @@ export default function BillingDashboard() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Billing & Payments</h1>
-          <p className="text-muted-foreground">Manage invoices, hospital fees, and M-Pesa payments.</p>
+          <p className="text-muted-foreground">Manage invoices and payments for Coast General Hospital.</p>
         </div>
         <div className="flex gap-4">
           <div className="flex items-center gap-2 bg-green-500/10 text-green-600 px-4 py-2 rounded-lg border border-green-500/20">
