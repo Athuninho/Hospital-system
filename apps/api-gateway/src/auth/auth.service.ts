@@ -70,7 +70,13 @@ export class AuthService {
   }
 
   private async generateAuthTokens(user: any) {
-    const payload = { sub: user.id, email: user.email, roleId: user.roleId };
+    const role = await this.prisma.role.findUnique({ where: { id: user.roleId } });
+    const payload = { 
+      sub: user.id, 
+      email: user.email, 
+      roleId: user.roleId, 
+      role: role?.name 
+    };
     const accessToken = this.jwt.sign(payload);
 
     // create refresh token record
