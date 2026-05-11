@@ -11,6 +11,12 @@ importers:
       '@prisma/client':
         specifier: ^5.14.0
         version: 5.14.0(prisma@5.14.0)
+      '@types/bcryptjs':
+        specifier: ^2.4.6
+        version: 2.4.6
+      bcryptjs:
+        specifier: ^3.0.3
+        version: 3.0.3
       prisma:
         specifier: ^5.14.0
         version: 5.14.0
