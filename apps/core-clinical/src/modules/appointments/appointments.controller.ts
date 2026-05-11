@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Patch, Body, Query, Param } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
-import { AppointmentStatus } from '@prisma/client';
 
 @Controller('appointments')
 export class AppointmentsController {
@@ -10,7 +9,7 @@ export class AppointmentsController {
   findAll(
     @Query('hospitalId') hospitalId?: string,
     @Query('doctorId') doctorId?: string,
-    @Query('status') status?: AppointmentStatus,
+    @Query('status') status?: string,
   ) {
     return this.appointmentsService.findAll({ hospitalId, doctorId, status });
   }
@@ -29,7 +28,7 @@ export class AppointmentsController {
   }
 
   @Patch(':id/status')
-  updateStatus(@Param('id') id: string, @Body('status') status: AppointmentStatus) {
+  updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.appointmentsService.updateStatus(id, status);
   }
 

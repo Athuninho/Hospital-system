@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@hospital/prisma';
-import { AppointmentStatus } from '@prisma/client';
+// Avoid importing Prisma namespace here to keep types stable across workspace
 
 @Injectable()
 export class AppointmentsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(query: { hospitalId?: string; doctorId?: string; status?: AppointmentStatus }) {
+  async findAll(query: { hospitalId?: string; doctorId?: string; status?: string }) {
     return this.prisma.appointment.findMany({
       where: {
         hospitalId: query.hospitalId,
         doctorId: query.doctorId,
-        status: query.status,
+        status: query.status as any,
       },
       include: {
         patient: true,
@@ -62,10 +62,10 @@ export class AppointmentsService {
     });
   }
 
-  async updateStatus(id: string, status: AppointmentStatus) {
+  async updateStatus(id: string, status: string) {
     return this.prisma.appointment.update({
       where: { id },
-      data: { status },
+      data: { status: status as any },
     });
   }
 

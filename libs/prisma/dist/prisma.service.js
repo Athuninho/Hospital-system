@@ -15,10 +15,12 @@ const client_1 = require("@prisma/client");
 let PrismaService = class PrismaService extends client_1.PrismaClient {
     constructor() {
         super({
+            // In Prisma 7, we pass the connection details here or use a config file
+            // For direct connection:
             datasource: {
                 url: process.env.DATABASE_URL,
             },
-        });
+        }); // Type cast if types are not perfectly synced yet
     }
     async onModuleInit() {
         await this.$connect();
@@ -27,8 +29,9 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
         await this.$disconnect();
     }
 };
-PrismaService = __decorate([
+exports.PrismaService = PrismaService;
+exports.PrismaService = PrismaService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [])
 ], PrismaService);
-exports.PrismaService = PrismaService;
+//# sourceMappingURL=prisma.service.js.map

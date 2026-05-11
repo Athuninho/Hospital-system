@@ -25,8 +25,7 @@ let OrdersService = class OrdersService {
         return record;
     }
 };
-exports.OrdersService = OrdersService;
-exports.OrdersService = OrdersService = __decorate([
+OrdersService = __decorate([
     (0, common_1.Injectable)()
 ], OrdersService);
-//# sourceMappingURL=orders.service.js.map
+exports.OrdersService = OrdersService;

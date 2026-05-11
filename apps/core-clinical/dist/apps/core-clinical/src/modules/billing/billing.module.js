@@ -14,8 +14,7 @@ const billing_controller_1 = require("./billing.controller");
 const prisma_1 = require("@hospital/prisma");
 let BillingModule = class BillingModule {
 };
-exports.BillingModule = BillingModule;
-exports.BillingModule = BillingModule = __decorate([
+BillingModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_1.PrismaModule],
         providers: [billing_service_1.BillingService, mpesa_service_1.MpesaService],
@@ -23,4 +22,4 @@ exports.BillingModule = BillingModule = __decorate([
         exports: [billing_service_1.BillingService],
     })
 ], BillingModule);
-//# sourceMappingURL=billing.module.js.map
+exports.BillingModule = BillingModule;

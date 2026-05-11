@@ -38,7 +38,6 @@ let BillingController = class BillingController {
         return this.billingService.recordBankPayment(data.invoiceId, data.amount, data.reference);
     }
 };
-exports.BillingController = BillingController;
 __decorate([
     (0, common_1.Post)('invoices'),
     __param(0, (0, common_1.Body)()),
@@ -81,8 +80,8 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], BillingController.prototype, "payBank", null);
-exports.BillingController = BillingController = __decorate([
+BillingController = __decorate([
     (0, common_1.Controller)('billing'),
     __metadata("design:paramtypes", [billing_service_1.BillingService])
 ], BillingController);
-//# sourceMappingURL=billing.controller.js.map
+exports.BillingController = BillingController;

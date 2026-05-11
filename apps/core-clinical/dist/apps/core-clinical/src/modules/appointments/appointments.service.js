@@ -40,7 +40,6 @@ let AppointmentsService = class AppointmentsService {
         });
     }
     async create(data) {
-        // Generate queue number for the day
         const startOfDay = new Date(data.scheduledAt);
         startOfDay.setHours(0, 0, 0, 0);
         const endOfDay = new Date(data.scheduledAt);
@@ -65,11 +64,10 @@ let AppointmentsService = class AppointmentsService {
     async updateStatus(id, status) {
         return this.prisma.appointment.update({
             where: { id },
-            data: { status },
+            data: { status: status },
         });
     }
     async getAvailability(doctorId, date) {
-        // Basic implementation: return schedules and existing appointments
         const schedules = await this.prisma.schedule.findMany({
             where: { staffId: doctorId },
         });
@@ -86,9 +84,8 @@ let AppointmentsService = class AppointmentsService {
         return { schedules, appointments };
     }
 };
-exports.AppointmentsService = AppointmentsService;
-exports.AppointmentsService = AppointmentsService = __decorate([
+AppointmentsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_1.PrismaService])
 ], AppointmentsService);
-//# sourceMappingURL=appointments.service.js.map
+exports.AppointmentsService = AppointmentsService;

@@ -29,7 +29,6 @@ let WardsController = class WardsController {
         return this.wardsService.dischargePatient(id);
     }
 };
-exports.WardsController = WardsController;
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('hospitalId')),
@@ -51,8 +50,8 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], WardsController.prototype, "discharge", null);
-exports.WardsController = WardsController = __decorate([
+WardsController = __decorate([
     (0, common_1.Controller)('wards'),
     __metadata("design:paramtypes", [wards_service_1.WardsService])
 ], WardsController);
-//# sourceMappingURL=wards.controller.js.map
+exports.WardsController = WardsController;

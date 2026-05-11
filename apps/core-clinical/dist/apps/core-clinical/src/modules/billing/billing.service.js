@@ -43,9 +43,7 @@ let BillingService = BillingService_1 = class BillingService {
         });
         if (!invoice)
             throw new Error('Invoice not found');
-        // 1. Initiate STK Push via Safaricom
         const response = await this.mpesa.initiateStkPush(phone, invoice.totalAmount, invoiceId.slice(0, 8));
-        // 2. Create a pending payment record with CheckoutRequestID
         return this.prisma.payment.create({
             data: {
                 invoiceId,
@@ -64,7 +62,6 @@ let BillingService = BillingService_1 = class BillingService {
             return;
         }
         const { CheckoutRequestID, ResultCode, ResultDesc, CallbackMetadata } = Body.stkCallback;
-        // Find the payment record by CheckoutRequestID
         const payment = await this.prisma.payment.findUnique({
             where: { checkoutRequestId: CheckoutRequestID },
         });
@@ -73,11 +70,9 @@ let BillingService = BillingService_1 = class BillingService {
             return;
         }
         if (ResultCode === 0) {
-            // SUCCESS
             const metadata = CallbackMetadata.Item;
             const receiptNumber = metadata.find((i) => i.Name === 'MpesaReceiptNumber')?.Value;
             await this.prisma.$transaction([
-                // 1. Update Payment Status
                 this.prisma.payment.update({
                     where: { id: payment.id },
                     data: {
@@ -85,7 +80,6 @@ let BillingService = BillingService_1 = class BillingService {
                         mpesaReceiptNumber: receiptNumber,
                     },
                 }),
-                // 2. Update Invoice Status
                 this.prisma.invoice.update({
                     where: { id: payment.invoiceId },
                     data: { status: 'PAID' },
@@ -94,7 +88,6 @@ let BillingService = BillingService_1 = class BillingService {
             this.logger.log(`Payment SUCCESS for Invoice ${payment.invoiceId}. Receipt: ${receiptNumber}`);
         }
         else {
-            // FAILED (or Cancelled)
             await this.prisma.payment.update({
                 where: { id: payment.id },
                 data: { status: 'FAILED' },
@@ -137,10 +130,9 @@ let BillingService = BillingService_1 = class BillingService {
         ]);
     }
 };
-exports.BillingService = BillingService;
-exports.BillingService = BillingService = BillingService_1 = __decorate([
+BillingService = BillingService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_1.PrismaService,
         mpesa_service_1.MpesaService])
 ], BillingService);
-//# sourceMappingURL=billing.service.js.map
+exports.BillingService = BillingService;

@@ -61,7 +61,6 @@ let EncountersService = class EncountersService {
     }
     async update(id, data) {
         const { vitals, ...rest } = data;
-        // If vitals are provided, we either create or update them
         if (vitals) {
             const encounter = await this.prisma.encounter.findUnique({
                 where: { id },
@@ -118,17 +117,17 @@ let EncountersService = class EncountersService {
             data: {
                 encounterId,
                 patientId: data.patientId,
-                fileName: data.fileName,
-                fileUrl: data.fileUrl,
-                fileType: data.fileType,
+                filename: data.fileName,
+                storageKey: data.fileUrl,
+                mimeType: data.fileType,
+                size: data.size ?? 0,
                 labResultId: data.labResultId
             }
         });
     }
 };
-exports.EncountersService = EncountersService;
-exports.EncountersService = EncountersService = __decorate([
+EncountersService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_1.PrismaService])
 ], EncountersService);
-//# sourceMappingURL=encounters.service.js.map
+exports.EncountersService = EncountersService;

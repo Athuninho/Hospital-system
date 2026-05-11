@@ -29,7 +29,6 @@ let OrdersController = class OrdersController {
         return this.ordersService.create(payload);
     }
 };
-exports.OrdersController = OrdersController;
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
@@ -50,8 +49,8 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "create", null);
-exports.OrdersController = OrdersController = __decorate([
+OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [orders_service_1.OrdersService])
 ], OrdersController);
-//# sourceMappingURL=orders.controller.js.map
+exports.OrdersController = OrdersController;

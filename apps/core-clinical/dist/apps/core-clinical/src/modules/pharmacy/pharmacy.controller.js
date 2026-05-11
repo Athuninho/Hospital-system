@@ -32,7 +32,6 @@ let PharmacyController = class PharmacyController {
         return this.pharmacyService.fulfillPrescription(id);
     }
 };
-exports.PharmacyController = PharmacyController;
 __decorate([
     (0, common_1.Get)('inventory/search'),
     __param(0, (0, common_1.Query)('q')),
@@ -62,8 +61,8 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], PharmacyController.prototype, "fulfill", null);
-exports.PharmacyController = PharmacyController = __decorate([
+PharmacyController = __decorate([
     (0, common_1.Controller)('pharmacy'),
     __metadata("design:paramtypes", [pharmacy_service_1.PharmacyService])
 ], PharmacyController);
-//# sourceMappingURL=pharmacy.controller.js.map
+exports.PharmacyController = PharmacyController;

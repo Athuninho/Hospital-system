@@ -48,18 +48,14 @@ let PharmacyService = class PharmacyService {
         });
     }
     async fulfillPrescription(prescriptionId) {
-        // In a real app, this would deduct from inventory
-        // For now, we'll mark the prescription as processed (if we had a status)
-        // Let's assume we update the notes or similar for now
         return this.prisma.prescription.update({
             where: { id: prescriptionId },
             data: { notes: 'FULFILLED' }
         });
     }
 };
-exports.PharmacyService = PharmacyService;
-exports.PharmacyService = PharmacyService = __decorate([
+PharmacyService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_1.PrismaService])
 ], PharmacyService);
-//# sourceMappingURL=pharmacy.service.js.map
+exports.PharmacyService = PharmacyService;

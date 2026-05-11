@@ -13,8 +13,7 @@ const pharmacy_controller_1 = require("./pharmacy.controller");
 const prisma_1 = require("@hospital/prisma");
 let PharmacyModule = class PharmacyModule {
 };
-exports.PharmacyModule = PharmacyModule;
-exports.PharmacyModule = PharmacyModule = __decorate([
+PharmacyModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_1.PrismaModule],
         providers: [pharmacy_service_1.PharmacyService],
@@ -22,4 +21,4 @@ exports.PharmacyModule = PharmacyModule = __decorate([
         exports: [pharmacy_service_1.PharmacyService],
     })
 ], PharmacyModule);
-//# sourceMappingURL=pharmacy.module.js.map
+exports.PharmacyModule = PharmacyModule;

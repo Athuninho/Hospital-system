@@ -19,8 +19,7 @@ const wards_module_1 = require("./modules/wards/wards.module");
 const prisma_1 = require("@hospital/prisma");
 let AppModule = class AppModule {
 };
-exports.AppModule = AppModule;
-exports.AppModule = AppModule = __decorate([
+AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             prisma_1.PrismaModule,
@@ -37,4 +36,4 @@ exports.AppModule = AppModule = __decorate([
         providers: []
     })
 ], AppModule);
-//# sourceMappingURL=app.module.js.map
+exports.AppModule = AppModule;

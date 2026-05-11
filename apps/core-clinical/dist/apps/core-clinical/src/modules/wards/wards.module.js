@@ -13,8 +13,7 @@ const wards_controller_1 = require("./wards.controller");
 const prisma_1 = require("@hospital/prisma");
 let WardsModule = class WardsModule {
 };
-exports.WardsModule = WardsModule;
-exports.WardsModule = WardsModule = __decorate([
+WardsModule = __decorate([
     (0, common_1.Module)({
         imports: [prisma_1.PrismaModule],
         providers: [wards_service_1.WardsService],
@@ -22,4 +21,4 @@ exports.WardsModule = WardsModule = __decorate([
         exports: [wards_service_1.WardsService],
     })
 ], WardsModule);
-//# sourceMappingURL=wards.module.js.map
+exports.WardsModule = WardsModule;

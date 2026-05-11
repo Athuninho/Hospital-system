@@ -31,7 +31,6 @@ let WardsService = class WardsService {
         });
     }
     async admitPatient(data) {
-        // 1. Check if bed is already occupied
         const bed = await this.prisma.bed.findUnique({
             where: { id: data.bedId }
         });
@@ -40,7 +39,6 @@ let WardsService = class WardsService {
         if (bed.occupied)
             throw new common_1.ConflictException('Bed is already occupied');
         return this.prisma.$transaction(async (tx) => {
-            // 2. Create Admission
             const admission = await tx.admission.create({
                 data: {
                     patientId: data.patientId,
@@ -48,7 +46,6 @@ let WardsService = class WardsService {
                     notes: data.notes,
                 }
             });
-            // 3. Mark Bed as occupied
             await tx.bed.update({
                 where: { id: data.bedId },
                 data: { occupied: true }
@@ -63,12 +60,10 @@ let WardsService = class WardsService {
         if (!admission)
             throw new common_1.NotFoundException('Admission record not found');
         return this.prisma.$transaction(async (tx) => {
-            // 1. End Admission
             const updatedAdmission = await tx.admission.update({
                 where: { id: admissionId },
                 data: { dischargedAt: new Date() }
             });
-            // 2. Mark Bed as free
             await tx.bed.update({
                 where: { id: admission.bedId },
                 data: { occupied: false }
@@ -77,9 +72,8 @@ let WardsService = class WardsService {
         });
     }
 };
-exports.WardsService = WardsService;
-exports.WardsService = WardsService = __decorate([
+WardsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_1.PrismaService])
 ], WardsService);
-//# sourceMappingURL=wards.service.js.map
+exports.WardsService = WardsService;

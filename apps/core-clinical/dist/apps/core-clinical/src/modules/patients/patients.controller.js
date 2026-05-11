@@ -29,7 +29,6 @@ let PatientsController = class PatientsController {
         return this.patientsService.create(payload);
     }
 };
-exports.PatientsController = PatientsController;
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
@@ -50,8 +49,8 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], PatientsController.prototype, "create", null);
-exports.PatientsController = PatientsController = __decorate([
+PatientsController = __decorate([
     (0, common_1.Controller)('patients'),
     __metadata("design:paramtypes", [patients_service_1.PatientsService])
 ], PatientsController);
-//# sourceMappingURL=patients.controller.js.map
+exports.PatientsController = PatientsController;

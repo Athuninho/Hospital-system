@@ -136,15 +136,17 @@ export class EncountersService {
     fileName: string;
     fileUrl: string;
     fileType: string;
+    size?: number;
     labResultId?: string;
   }) {
     return this.prisma.fileAttachment.create({
       data: {
         encounterId,
         patientId: data.patientId,
-        fileName: data.fileName,
-        fileUrl: data.fileUrl,
-        fileType: data.fileType,
+        filename: data.fileName,
+        storageKey: data.fileUrl,
+        mimeType: data.fileType,
+        size: data.size ?? 0,
         labResultId: data.labResultId
       }
     });

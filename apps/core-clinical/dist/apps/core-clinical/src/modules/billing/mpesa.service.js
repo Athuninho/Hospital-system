@@ -16,7 +16,6 @@ const axios_1 = __importDefault(require("axios"));
 let MpesaService = MpesaService_1 = class MpesaService {
     constructor() {
         this.logger = new common_1.Logger(MpesaService_1.name);
-        // In production, these would be in .env
         this.consumerKey = process.env.MPESA_CONSUMER_KEY || 'your_key';
         this.consumerSecret = process.env.MPESA_CONSUMER_SECRET || 'your_secret';
         this.shortCode = process.env.MPESA_SHORTCODE || '174379';
@@ -65,8 +64,7 @@ let MpesaService = MpesaService_1 = class MpesaService {
         }
     }
 };
-exports.MpesaService = MpesaService;
-exports.MpesaService = MpesaService = MpesaService_1 = __decorate([
+MpesaService = MpesaService_1 = __decorate([
     (0, common_1.Injectable)()
 ], MpesaService);
-//# sourceMappingURL=mpesa.service.js.map
+exports.MpesaService = MpesaService;

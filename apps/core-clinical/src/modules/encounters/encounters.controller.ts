@@ -20,7 +20,6 @@ export class EncountersController {
     return this.encountersService.create(payload);
   }
 
-  @Param('id')
   @Post(':id/prescriptions')
   addPrescription(@Param('id') id: string, @Body() payload: any) {
     return this.encountersService.addPrescription(id, payload);

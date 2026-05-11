@@ -24,14 +24,13 @@ let LabService = class LabService {
             },
             include: {
                 patient: true,
-                staff: true, // requestedBy
+                staff: true,
                 encounter: true
             },
             orderBy: { requestedAt: 'desc' }
         });
     }
     async reportResult(requestId, data) {
-        // 1. Create the result record
         const result = await this.prisma.labResult.create({
             data: {
                 labRequestId: requestId,
@@ -40,7 +39,6 @@ let LabService = class LabService {
                 reportedAt: new Date(),
             }
         });
-        // 2. Update request status
         await this.prisma.labRequest.update({
             where: { id: requestId },
             data: { status: 'COMPLETED' }
@@ -60,9 +58,8 @@ let LabService = class LabService {
         });
     }
 };
-exports.LabService = LabService;
-exports.LabService = LabService = __decorate([
+LabService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_1.PrismaService])
 ], LabService);
-//# sourceMappingURL=lab.service.js.map
+exports.LabService = LabService;

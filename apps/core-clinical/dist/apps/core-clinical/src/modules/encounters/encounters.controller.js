@@ -41,7 +41,6 @@ let EncountersController = class EncountersController {
         return this.encountersService.addFileAttachment(id, payload);
     }
 };
-exports.EncountersController = EncountersController;
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
@@ -63,7 +62,6 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], EncountersController.prototype, "create", null);
 __decorate([
-    (0, common_1.Param)('id'),
     (0, common_1.Post)(':id/prescriptions'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -95,8 +93,8 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], EncountersController.prototype, "addFile", null);
-exports.EncountersController = EncountersController = __decorate([
+EncountersController = __decorate([
     (0, common_1.Controller)('encounters'),
     __metadata("design:paramtypes", [encounters_service_1.EncountersService])
 ], EncountersController);
-//# sourceMappingURL=encounters.controller.js.map
+exports.EncountersController = EncountersController;

@@ -12,11 +12,10 @@ const encounters_controller_1 = require("./encounters.controller");
 const encounters_service_1 = require("./encounters.service");
 let EncountersModule = class EncountersModule {
 };
-exports.EncountersModule = EncountersModule;
-exports.EncountersModule = EncountersModule = __decorate([
+EncountersModule = __decorate([
     (0, common_1.Module)({
         controllers: [encounters_controller_1.EncountersController],
         providers: [encounters_service_1.EncountersService]
     })
 ], EncountersModule);
-//# sourceMappingURL=encounters.module.js.map
+exports.EncountersModule = EncountersModule;

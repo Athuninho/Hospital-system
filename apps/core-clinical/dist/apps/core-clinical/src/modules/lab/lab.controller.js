@@ -29,7 +29,6 @@ let LabController = class LabController {
         return this.labService.getResults(patientId);
     }
 };
-exports.LabController = LabController;
 __decorate([
     (0, common_1.Get)('requests/pending'),
     __param(0, (0, common_1.Query)('hospitalId')),
@@ -52,8 +51,8 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], LabController.prototype, "getResults", null);
-exports.LabController = LabController = __decorate([
+LabController = __decorate([
     (0, common_1.Controller)('lab'),
     __metadata("design:paramtypes", [lab_service_1.LabService])
 ], LabController);
-//# sourceMappingURL=lab.controller.js.map
+exports.LabController = LabController;

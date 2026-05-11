@@ -41,7 +41,6 @@ let PatientsService = class PatientsService {
         });
     }
     async create(payload) {
-        // Generate a medical record number if not provided
         const mrn = payload.medicalRecordNumber || `PAT-${Math.floor(1000 + Math.random() * 9000)}`;
         return this.prisma.patient.create({
             data: {
@@ -51,9 +50,8 @@ let PatientsService = class PatientsService {
         });
     }
 };
-exports.PatientsService = PatientsService;
-exports.PatientsService = PatientsService = __decorate([
+PatientsService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_1.PrismaService])
 ], PatientsService);
-//# sourceMappingURL=patients.service.js.map
+exports.PatientsService = PatientsService;

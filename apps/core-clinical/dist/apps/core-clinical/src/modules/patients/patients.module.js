@@ -12,11 +12,10 @@ const patients_controller_1 = require("./patients.controller");
 const patients_service_1 = require("./patients.service");
 let PatientsModule = class PatientsModule {
 };
-exports.PatientsModule = PatientsModule;
-exports.PatientsModule = PatientsModule = __decorate([
+PatientsModule = __decorate([
     (0, common_1.Module)({
         controllers: [patients_controller_1.PatientsController],
         providers: [patients_service_1.PatientsService]
     })
 ], PatientsModule);
-//# sourceMappingURL=patients.module.js.map
+exports.PatientsModule = PatientsModule;
