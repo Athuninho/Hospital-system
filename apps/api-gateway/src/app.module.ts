@@ -11,7 +11,10 @@ import { ThrottleTestController } from './test/throttle.controller';
   imports: [
     PrismaModule,
     AuthModule,
-    ThrottlerModule.forRoot({ ttl: 60, limit: 20 } as any),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 20,
+    }]),
   ],
   controllers: [HealthController],
   providers: [
