@@ -8,12 +8,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthModule = void 0;
 const common_1 = require("@nestjs/common");
+const dotenv_1 = require("dotenv");
 const jwt_1 = require("@nestjs/jwt");
 const auth_service_1 = require("./auth.service");
 const auth_controller_1 = require("./auth.controller");
 const prisma_1 = require("@hospital/prisma");
 const mfa_service_1 = require("./mfa.service");
-config();
+(0, dotenv_1.config)();
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;

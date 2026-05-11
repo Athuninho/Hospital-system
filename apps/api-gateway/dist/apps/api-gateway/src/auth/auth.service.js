@@ -128,10 +128,13 @@ let AuthService = class AuthService {
         // enforce password strength
         password_service_1.PasswordService.validateStrength(dto.password, [dto.email, dto.firstName, dto.lastName]);
         const passwordHash = await bcrypt.hash(dto.password, 12);
-        // default role: PATIENT
-        const role = await this.prisma.role.findUnique({ where: { name: 'PATIENT' } });
+        // default role: PATIENT — ensure role exists
+        let role = await this.prisma.role.findUnique({ where: { name: 'PATIENT' } });
+        if (!role) {
+            role = await this.prisma.role.create({ data: { name: 'PATIENT', description: 'Default patient role' } });
+        }
         const user = await this.prisma.user.create({
-            data: { email: dto.email, passwordHash, roleId: role ? role.id : undefined },
+            data: { email: dto.email, passwordHash, roleId: role.id },
         });
         // create patient record
         await this.prisma.patient.create({
