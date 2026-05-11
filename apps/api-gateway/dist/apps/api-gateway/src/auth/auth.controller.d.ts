@@ -9,20 +9,20 @@ export declare class AuthController {
     private mfaService;
     constructor(auth: AuthService, mfaService: MfaService);
     login(dto: LoginDto): Promise<{
-        accessToken: any;
+        accessToken: string;
         refreshToken: string;
     } | {
-        mfaToken: any;
+        mfaToken: string;
         requiresMfa: boolean;
         method: any;
     }>;
     verifyMfaLogin(mfaToken: string, code: string): Promise<{
-        accessToken: any;
+        accessToken: string;
         refreshToken: string;
     }>;
     setupMfa(req: any): Promise<{
         secret: string;
-        qrCodeDataUrl: any;
+        qrCodeDataUrl: string;
     }>;
     enableMfa(req: any, token: string): Promise<{
         ok: boolean;
@@ -37,7 +37,7 @@ export declare class AuthController {
         message: string;
     }>;
     refresh(req: any): Promise<{
-        accessToken: any;
+        accessToken: string;
     }>;
     register(dto: RegisterDto): Promise<{
         id: string;

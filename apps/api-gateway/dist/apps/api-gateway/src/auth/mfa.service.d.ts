@@ -4,7 +4,7 @@ export declare class MfaService {
     constructor(prisma: PrismaService);
     generateTotpSecret(userId: string, email: string): Promise<{
         secret: string;
-        qrCodeDataUrl: any;
+        qrCodeDataUrl: string;
     }>;
     verifyAndEnableTotp(userId: string, token: string): Promise<{
         ok: boolean;
