@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum RoleName {
@@ -41,25 +40,27 @@ enum Gender {
 }
 
 model Hospital {
-  id          String    @id @default(uuid())
-  name        String
-  code        String    @unique
-  address     String?
-  phone       String?
-  email       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  address   String?
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  staff       Staff[]
-  patients    Patient[]
-  wards       Ward[]
-  drugStocks  DrugInventory[]
+  staff      Staff[]
+  patients   Patient[]
+  wards      Ward[]
+  drugStocks DrugInventory[]
 
   users User[]
 
   visits Visit[]
 
   appointments Appointment[]
+
+  orders Order[]
 }
 
 model Role {
@@ -68,65 +69,65 @@ model Role {
   description String?
   createdAt   DateTime @default(now())
 
-  users       User[]
+  users User[]
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  isActive     Boolean  @default(true)
-  roleId       String
-  hospitalId   String?  // optional association for hospital staff
-  failedLoginAttempts Int    @default(0)
-  lockUntil           DateTime?
-  passwordResetToken  String? @unique
+  id                   String    @id @default(uuid())
+  email                String    @unique
+  passwordHash         String
+  isActive             Boolean   @default(true)
+  roleId               String
+  hospitalId           String? // optional association for hospital staff
+  failedLoginAttempts  Int       @default(0)
+  lockUntil            DateTime?
+  passwordResetToken   String?   @unique
   passwordResetExpires DateTime?
-  mfaEnabled          Boolean @default(false)
-  mfaSecret           String?
-  mfaMethod           String? @default("TOTP") // e.g. TOTP, SMS
-  mfaPhone            String?
-  createdAt    DateTime @default(now())
+  mfaEnabled           Boolean   @default(false)
+  mfaSecret            String?
+  mfaMethod            String?   @default("TOTP") // e.g. TOTP, SMS
+  mfaPhone             String?
+  createdAt            DateTime  @default(now())
 
-  role         Role     @relation(fields: [roleId], references: [id])
-  hospital     Hospital? @relation(fields: [hospitalId], references: [id])
-  staff        Staff?
-  patient      Patient?
-  sessions     RefreshToken[]
+  role     Role           @relation(fields: [roleId], references: [id])
+  hospital Hospital?      @relation(fields: [hospitalId], references: [id])
+  staff    Staff?
+  patient  Patient?
+  sessions RefreshToken[]
 }
 
 model RefreshToken {
-  id         String   @id @default(uuid())
-  token      String   @unique
-  userId     String
-  revoked    Boolean  @default(false)
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  revoked   Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Staff {
-  id             String   @id @default(uuid())
-  userId         String   @unique
-  hospitalId     String
-  firstName      String
-  lastName       String
-  staffNumber    String   @unique
-  position       String
-  specialty      String?
-  phone          String?
-  email          String?
-  hiredAt        DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  hospitalId  String
+  firstName   String
+  lastName    String
+  staffNumber String    @unique
+  position    String
+  specialty   String?
+  phone       String?
+  email       String?
+  hiredAt     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  user           User     @relation(fields: [userId], references: [id])
-  hospital       Hospital @relation(fields: [hospitalId], references: [id])
-  schedules      Schedule[]
-  appointments   Appointment[]
-  encounters     Encounter[]
-  labRequests    LabRequest[]
+  user         User          @relation(fields: [userId], references: [id])
+  hospital     Hospital      @relation(fields: [hospitalId], references: [id])
+  schedules    Schedule[]
+  appointments Appointment[]
+  encounters   Encounter[]
+  labRequests  LabRequest[]
 }
 
 model Patient {
@@ -147,31 +148,33 @@ model Patient {
   updatedAt           DateTime  @updatedAt
   deletedAt           DateTime?
 
-  hospital            Hospital  @relation(fields: [hospitalId], references: [id])
-  user                User?     @relation(fields: [userId], references: [id])
-  contacts            Contact[]
-  medicalHistories    MedicalHistory[]
-  allergies           Allergy[]
-  visits              Visit[]
-  appointments        Appointment[]
-  encounters          Encounter[]
-  prescriptions       Prescription[]
-  admissions          Admission[]
-  files               FileAttachment[]
+  hospital         Hospital         @relation(fields: [hospitalId], references: [id])
+  user             User?            @relation(fields: [userId], references: [id])
+  contacts         Contact[]
+  medicalHistories MedicalHistory[]
+  allergies        Allergy[]
+  visits           Visit[]
+  appointments     Appointment[]
+  encounters       Encounter[]
+  prescriptions    Prescription[]
+  admissions       Admission[]
+  files            FileAttachment[]
 
   labRequests LabRequest[]
+  invoices    Invoice[]
+  orders      Order[]
 }
 
 model Contact {
-  id         String   @id @default(uuid())
-  patientId  String
-  name       String
-  relation   String
-  phone      String
-  email      String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  patientId String
+  name      String
+  relation  String
+  phone     String
+  email     String?
+  createdAt DateTime @default(now())
 
-  patient    Patient  @relation(fields: [patientId], references: [id])
+  patient Patient @relation(fields: [patientId], references: [id])
 }
 
 model MedicalHistory {
@@ -181,87 +184,87 @@ model MedicalHistory {
   details    String
   recordedAt DateTime @default(now())
 
-  patient    Patient  @relation(fields: [patientId], references: [id])
+  patient Patient @relation(fields: [patientId], references: [id])
 }
 
 model Allergy {
-  id         String   @id @default(uuid())
-  patientId  String
-  substance  String
-  reaction   String?
-  severity   String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  patientId String
+  substance String
+  reaction  String?
+  severity  String?
+  createdAt DateTime @default(now())
 
-  patient    Patient  @relation(fields: [patientId], references: [id])
+  patient Patient @relation(fields: [patientId], references: [id])
 }
 
 model Visit {
   id         String   @id @default(uuid())
   patientId  String
   hospitalId String
-  type       String?  // outpatient/inpatient/emergency
+  type       String? // outpatient/inpatient/emergency
   visitAt    DateTime @default(now())
   reason     String?
   notes      String?
 
-  patient    Patient  @relation(fields: [patientId], references: [id])
-  hospital   Hospital @relation(fields: [hospitalId], references: [id])
-  encounter  Encounter?
+  patient   Patient    @relation(fields: [patientId], references: [id])
+  hospital  Hospital   @relation(fields: [hospitalId], references: [id])
+  encounter Encounter?
 }
 
 model Appointment {
-  id           String            @id @default(uuid())
-  patientId    String
-  doctorId     String?
-  hospitalId   String
-  scheduledAt  DateTime
-  status       AppointmentStatus @default(PENDING)
-  queueNumber  Int?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  id          String            @id @default(uuid())
+  patientId   String
+  doctorId    String?
+  hospitalId  String
+  scheduledAt DateTime
+  status      AppointmentStatus @default(PENDING)
+  queueNumber Int?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
-  patient      Patient           @relation(fields: [patientId], references: [id])
-  doctor       Staff?            @relation(fields: [doctorId], references: [id])
-  hospital     Hospital          @relation(fields: [hospitalId], references: [id])
+  patient  Patient  @relation(fields: [patientId], references: [id])
+  doctor   Staff?   @relation(fields: [doctorId], references: [id])
+  hospital Hospital @relation(fields: [hospitalId], references: [id])
 
   encounters Encounter[]
 }
 
 model Encounter {
-  id           String    @id @default(uuid())
-  patientId    String
-  doctorId     String
+  id            String   @id @default(uuid())
+  patientId     String
+  doctorId      String
   appointmentId String?
-  visitId      String?
-  notes        String?
-  diagnosis    String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  visitId       String?  @unique
+  notes         String?
+  diagnosis     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  patient      Patient   @relation(fields: [patientId], references: [id])
-  doctor       Staff     @relation(fields: [doctorId], references: [id])
-  appointment  Appointment? @relation(fields: [appointmentId], references: [id])
-  visit        Visit?    @relation(fields: [visitId], references: [id])
+  patient       Patient          @relation(fields: [patientId], references: [id])
+  doctor        Staff            @relation(fields: [doctorId], references: [id])
+  appointment   Appointment?     @relation(fields: [appointmentId], references: [id])
+  visit         Visit?           @relation(fields: [visitId], references: [id])
   prescriptions Prescription[]
-  labRequests  LabRequest[]
-  files        FileAttachment[]
+  labRequests   LabRequest[]
+  files         FileAttachment[]
 }
 
 model Prescription {
   id           String   @id @default(uuid())
   encounterId  String
-  prescribedBy String   // staffId
+  prescribedBy String // staffId
   notes        String?
   createdAt    DateTime @default(now())
 
-  encounter    Encounter @relation(fields: [encounterId], references: [id])
-  items        PrescriptionItem[]
+  encounter Encounter          @relation(fields: [encounterId], references: [id])
+  items     PrescriptionItem[]
 
   patients Patient[]
 }
 
 model PrescriptionItem {
-  id             String @id @default(uuid())
+  id             String  @id @default(uuid())
   prescriptionId String
   drugName       String
   brand          String?
@@ -269,90 +272,91 @@ model PrescriptionItem {
   frequency      String?
   duration       String?
 
-  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  prescription Prescription @relation(fields: [prescriptionId], references: [id])
 }
 
 model DrugInventory {
-  id           String   @id @default(uuid())
-  hospitalId   String
-  name         String
-  brand        String?
-  batchNumber  String?
-  quantity     Int      @default(0)
-  minQuantity  Int      @default(0)
-  expiryDate   DateTime?
-  createdAt    DateTime @default(now())
+  id          String    @id @default(uuid())
+  hospitalId  String
+  name        String
+  brand       String?
+  batchNumber String?
+  quantity    Int       @default(0)
+  minQuantity Int       @default(0)
+  expiryDate  DateTime?
+  createdAt   DateTime  @default(now())
 
-  hospital     Hospital @relation(fields: [hospitalId], references: [id])
+  hospital Hospital @relation(fields: [hospitalId], references: [id])
 }
 
 model LabRequest {
-  id           String   @id @default(uuid())
-  encounterId  String?
-  requestedBy  String   // staffId
-  patientId    String
-  testType     String
-  status       String   @default("PENDING")
-  requestedAt  DateTime @default(now())
+  id          String   @id @default(uuid())
+  encounterId String?
+  requestedBy String // staffId
+  patientId   String
+  testType    String
+  status      String   @default("PENDING")
+  requestedAt DateTime @default(now())
 
-  encounter    Encounter? @relation(fields: [encounterId], references: [id])
-  patient      Patient    @relation(fields: [patientId], references: [id])
-  results      LabResult[]
+  encounter Encounter?  @relation(fields: [encounterId], references: [id])
+  patient   Patient     @relation(fields: [patientId], references: [id])
+  results   LabResult[]
 
   staffs Staff[]
 }
 
 model LabResult {
-  id          String   @id @default(uuid())
+  id           String    @id @default(uuid())
   labRequestId String
-  resultData  Json
-  reportedBy  String?
-  reportedAt  DateTime?
+  resultData   Json
+  reportedBy   String?
+  reportedAt   DateTime?
 
-  labRequest  LabRequest @relation(fields: [labRequestId], references: [id])
+  labRequest LabRequest       @relation(fields: [labRequestId], references: [id])
+  files      FileAttachment[]
 }
 
 model FileAttachment {
-  id           String   @id @default(uuid())
-  hospitalId   String?
-  patientId    String?
-  encounterId  String?
-  labResultId  String?
-  filename     String
-  storageKey   String   // S3 key or object path
-  mimeType     String
-  size         Int
-  encrypted    Boolean  @default(true)
-  uploadedAt   DateTime @default(now())
+  id          String   @id @default(uuid())
+  hospitalId  String?
+  patientId   String?
+  encounterId String?
+  labResultId String?
+  filename    String
+  storageKey  String // S3 key or object path
+  mimeType    String
+  size        Int
+  encrypted   Boolean  @default(true)
+  uploadedAt  DateTime @default(now())
 
-  patient      Patient? @relation(fields: [patientId], references: [id])
-  encounter    Encounter? @relation(fields: [encounterId], references: [id])
-  labResult    LabResult? @relation(fields: [labResultId], references: [id])
+  patient   Patient?   @relation(fields: [patientId], references: [id])
+  encounter Encounter? @relation(fields: [encounterId], references: [id])
+  labResult LabResult? @relation(fields: [labResultId], references: [id])
 }
 
 model Invoice {
-  id           String   @id @default(uuid())
-  hospitalId   String
-  patientId    String
-  issuedAt     DateTime @default(now())
-  totalAmount  Float
-  status       PaymentStatus @default(PENDING)
-  createdAt    DateTime @default(now())
+  id          String        @id @default(uuid())
+  hospitalId  String
+  patientId   String
+  issuedAt    DateTime      @default(now())
+  totalAmount Float
+  status      PaymentStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
 
-  patient      Patient  @relation(fields: [patientId], references: [id])
-  payments     Payment[]
+  patient  Patient   @relation(fields: [patientId], references: [id])
+  payments Payment[]
 }
 
 model Payment {
-  id         String   @id @default(uuid())
-  invoiceId  String
-  method     String
-  amount     Float
-  status     PaymentStatus @default(PENDING)
-  reference  String?
-  createdAt  DateTime @default(now())
+  id        String        @id @default(uuid())
+  invoiceId String
+  method    String
+  amount    Float
+  status    PaymentStatus @default(PENDING)
+  reference String?
+  createdAt DateTime      @default(now())
 
-  invoice    Invoice  @relation(fields: [invoiceId], references: [id])
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
 }
 
 enum OrderStatus {
@@ -366,76 +370,76 @@ model Order {
   id          String      @id @default(uuid())
   hospitalId  String
   patientId   String
-  createdBy   String?     // staffId or userId
+  createdBy   String? // staffId or userId
   status      OrderStatus @default(PENDING)
   totalAmount Float       @default(0)
   createdAt   DateTime    @default(now())
 
-  patient     Patient     @relation(fields: [patientId], references: [id])
-  hospital    Hospital    @relation(fields: [hospitalId], references: [id])
-  items       OrderItem[]
+  patient  Patient     @relation(fields: [patientId], references: [id])
+  hospital Hospital    @relation(fields: [hospitalId], references: [id])
+  items    OrderItem[]
 }
 
 model OrderItem {
-  id       String  @id @default(uuid())
-  orderId  String
-  code     String
-  name     String
-  quantity Int     @default(1)
+  id        String @id @default(uuid())
+  orderId   String
+  code      String
+  name      String
+  quantity  Int    @default(1)
   unitPrice Float
 
-  order    Order   @relation(fields: [orderId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
 }
 
 model Ward {
-  id          String   @id @default(uuid())
-  hospitalId  String
-  name        String
-  capacity    Int
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  hospitalId String
+  name       String
+  capacity   Int
+  createdAt  DateTime @default(now())
 
-  hospital    Hospital @relation(fields: [hospitalId], references: [id])
-  beds        Bed[]
+  hospital Hospital @relation(fields: [hospitalId], references: [id])
+  beds     Bed[]
 }
 
 model Bed {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   wardId    String
   bedNumber String
-  occupied  Boolean  @default(false)
+  occupied  Boolean @default(false)
 
-  ward      Ward     @relation(fields: [wardId], references: [id])
+  ward      Ward       @relation(fields: [wardId], references: [id])
   admission Admission?
 }
 
 model Admission {
-  id          String   @id @default(uuid())
-  patientId   String
-  bedId       String
-  admittedAt  DateTime @default(now())
+  id           String    @id @default(uuid())
+  patientId    String
+  bedId        String    @unique
+  admittedAt   DateTime  @default(now())
   dischargedAt DateTime?
-  notes       String?
+  notes        String?
 
-  patient     Patient  @relation(fields: [patientId], references: [id])
-  bed         Bed      @relation(fields: [bedId], references: [id])
+  patient Patient @relation(fields: [patientId], references: [id])
+  bed     Bed     @relation(fields: [bedId], references: [id])
 }
 
 model Schedule {
-  id        String   @id @default(uuid())
+  id        String @id @default(uuid())
   staffId   String
   dayOfWeek Int
   fromTime  String
   toTime    String
 
-  staff     Staff    @relation(fields: [staffId], references: [id])
+  staff Staff @relation(fields: [staffId], references: [id])
 }
 
 model AuditLog {
-  id         String   @id @default(uuid())
-  actorId    String?
-  action     String
-  entity     String
-  entityId   String
-  changes    Json?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String
+  changes   Json?
+  createdAt DateTime @default(now())
 }
