@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { use, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge" // I'll assume this doesn't exist and use a div if it fails, or create it.
+import { Badge } from "@/components/ui/badge"
 
 // Mock data for a single patient
 const MOCK_PATIENT = {
@@ -28,7 +28,8 @@ const MOCK_PATIENT = {
   ]
 }
 
-export default function PatientDetailPage({ params }: { params: { id: string } }) {
+export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("overview")
 
