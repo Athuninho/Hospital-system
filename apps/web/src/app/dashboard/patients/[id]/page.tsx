@@ -126,9 +126,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
               <CardContent>
                 <div className="flex flex-wrap gap-2">
                   {MOCK_PATIENT.allergies.map((allergy) => (
-                    <div key={allergy} className="px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded">
+                    <Badge key={allergy} variant="destructive">
                       {allergy}
-                    </div>
+                    </Badge>
                   ))}
                 </div>
               </CardContent>
@@ -144,9 +144,9 @@ export default function PatientDetailPage({ params }: { params: { id: string } }
                       <p className="font-medium">{h.title}</p>
                       <p className="text-xs text-muted-foreground">Diagnosed: {h.date}</p>
                     </div>
-                    <div className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] uppercase font-bold rounded">
+                    <Badge variant={h.status === 'Active' ? 'success' : 'outline'}>
                       {h.status}
-                    </div>
+                    </Badge>
                   </div>
                 ))}
               </CardContent>

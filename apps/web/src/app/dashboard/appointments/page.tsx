@@ -105,13 +105,13 @@ export default function AppointmentsPage() {
                     <td className="p-4">{app.patient}</td>
                     <td className="p-4">{app.doctor}</td>
                     <td className="p-4">
-                      <div className={`px-2 py-1 rounded-full text-[10px] font-bold inline-block ${
-                        app.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-700' :
-                        app.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                        'bg-yellow-100 text-yellow-700'
-                      }`}>
+                      <Badge variant={
+                        app.status === 'CONFIRMED' ? 'info' :
+                        app.status === 'COMPLETED' ? 'success' :
+                        'warning'
+                      }>
                         {app.status}
-                      </div>
+                      </Badge>
                     </td>
                     <td className="p-4">
                       <Button variant="ghost" size="sm">Check-in</Button>

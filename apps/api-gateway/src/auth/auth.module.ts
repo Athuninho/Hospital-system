@@ -13,7 +13,7 @@ config();
     PrismaModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'change_this_in_production',
-      signOptions: { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' },
+      signOptions: { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' } as any,
     }),
   ],
   providers: [AuthService, MfaService],

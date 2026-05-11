@@ -20,7 +20,7 @@ let ThrottleTestController = class ThrottleTestController {
 };
 exports.ThrottleTestController = ThrottleTestController;
 __decorate([
-    (0, throttler_1.Throttle)(5, 60),
+    (0, throttler_1.Throttle)({ limit: 5, ttl: 60 }),
     (0, common_1.Get)('throttle'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
