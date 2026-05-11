@@ -12,8 +12,9 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.setGlobalPrefix('api/v1');
-  await app.listen(process.env.PORT ? Number(process.env.PORT) : 3000);
-  console.log('API Gateway running on port', process.env.PORT || 3000);
+  const port = process.env.GATEWAY_PORT ? Number(process.env.GATEWAY_PORT) : 3001;
+  await app.listen(port);
+  console.log('API Gateway running on port', port);
 }
 
 bootstrap();
