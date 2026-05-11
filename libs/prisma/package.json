@@ -8,10 +8,9 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@prisma/client": "*",
-    "@nestjs/common": "^9.0.0"
-  }
-  ,
+    "@nestjs/common": "^9.0.0",
+    "@prisma/client": "^5.14.0"
+  },
   "devDependencies": {
     "typescript": "^5.2.0"
   }

@@ -3,6 +3,7 @@ packages:
   - "libs/*"
 allowBuilds:
   '@nestjs/core': true
+  '@prisma/client': set this to true or false
   '@prisma/engines': true
   msgpackr-extract: true
   prisma: true
