@@ -14,13 +14,7 @@ const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 let PrismaService = class PrismaService extends client_1.PrismaClient {
     constructor() {
-        super({
-            // In Prisma 7, we pass the connection details here or use a config file
-            // For direct connection:
-            datasource: {
-                url: process.env.DATABASE_URL,
-            },
-        }); // Type cast if types are not perfectly synced yet
+        super();
     }
     async onModuleInit() {
         await this.$connect();
