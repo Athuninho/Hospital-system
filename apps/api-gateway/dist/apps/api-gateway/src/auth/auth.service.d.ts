@@ -6,19 +6,19 @@ export declare class AuthService {
     constructor(prisma: PrismaService, jwt: JwtService);
     validateUser(email: string, pass: string): Promise<any>;
     login(user: any): Promise<{
-        accessToken: string;
+        accessToken: any;
         refreshToken: string;
     } | {
-        mfaToken: string;
+        mfaToken: any;
         requiresMfa: boolean;
         method: any;
     }>;
     completeMfaLogin(user: any): Promise<{
-        accessToken: string;
+        accessToken: any;
         refreshToken: string;
     }>;
     verifyMfaLogin(mfaToken: string, code: string, mfaService: any): Promise<{
-        accessToken: string;
+        accessToken: any;
         refreshToken: string;
     }>;
     private generateAuthTokens;
@@ -39,6 +39,6 @@ export declare class AuthService {
     }>;
     private generateRefreshToken;
     refresh(token: string): Promise<{
-        accessToken: string;
+        accessToken: any;
     }>;
 }

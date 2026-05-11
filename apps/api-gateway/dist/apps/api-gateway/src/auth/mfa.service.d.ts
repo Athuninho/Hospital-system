@@ -3,7 +3,7 @@ export declare class MfaService {
     private prisma;
     constructor(prisma: PrismaService);
     generateTotpSecret(userId: string, email: string): Promise<{
-        secret: any;
+        secret: string;
         qrCodeDataUrl: any;
     }>;
     verifyAndEnableTotp(userId: string, token: string): Promise<{
@@ -19,6 +19,6 @@ export declare class MfaService {
         message: string;
     }>;
     private verifyAndEnable;
-    verifyTotp(userId: string, token: string): Promise<any>;
+    verifyTotp(userId: string, token: string): Promise<boolean>;
     sendLoginSms(userId: string): Promise<void>;
 }
