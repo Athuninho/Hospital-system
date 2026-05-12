@@ -251,6 +251,13 @@ importers:
       ioredis:
         specifier: ^5.0.0
         version: 5.10.1
+    devDependencies:
+      ts-node-dev:
+        specifier: ^2.0.0
+        version: 2.0.0(@types/node@20.19.40)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.2.0
+        version: 5.9.3
 
   apps/ws-server:
     dependencies:
@@ -272,6 +279,13 @@ importers:
       socket.io:
         specifier: ^4.6.0
         version: 4.8.3
+    devDependencies:
+      ts-node-dev:
+        specifier: ^2.0.0
+        version: 2.0.0(@types/node@20.19.40)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.2.0
+        version: 5.9.3
 
   libs/prisma:
     dependencies:
