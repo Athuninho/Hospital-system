@@ -9,5 +9,9 @@
     "bullmq": "^2.0.0",
     "ioredis": "^5.0.0",
     "@prisma/client": "*"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.2.0"
   }
 }
